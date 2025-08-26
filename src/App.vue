@@ -1,15 +1,15 @@
 <script setup>
 import MainList from "./MainList.vue";
+import { usePosts } from "./usePosts";
 
-const filesList = [
-  { name: "Giappone", category: "gigi", mood: "chill", date: "22/07/2024" },
-];
+const { state } = usePosts();
+const postsList = state.postsList;
 </script>
 
 <template>
   <div class="grid grid-cols-4 gap-0 min-h-screen bg-gray-100">
     <SideTab :folder-list="folderList" />
-    <MainList :files="filesList" />
+    <MainList :posts="postsList" />
   </div>
 </template>
 
