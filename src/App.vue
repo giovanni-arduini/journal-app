@@ -1,11 +1,16 @@
-<script setup></script>
+<script setup>
+import MainList from "./MainList.vue";
+
+const filesList = [
+  { name: "Giappone", category: "gigi", mood: "chill", date: "22/07/2024" },
+];
+</script>
 
 <template>
-  <h1>You did it!</h1>
-  <p>
-    Visit <a href="https://vuejs.org/" target="_blank" rel="noopener">vuejs.org</a> to read the
-    documentation
-  </p>
+  <div class="grid grid-cols-4 gap-0 min-h-screen bg-gray-100">
+    <SideTab :folder-list="folderList" />
+    <MainList :files="filesList" />
+  </div>
 </template>
 
 <style scoped></style>
