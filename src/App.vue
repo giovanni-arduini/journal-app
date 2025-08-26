@@ -1,9 +1,11 @@
 <script setup>
-import MainList from "./MainList.vue";
+import MainList from "./components/MainList.vue";
 import { usePosts } from "./usePosts";
 
 const { state } = usePosts();
 const postsList = state.postsList;
+
+const folderList = ["2", "3"];
 </script>
 
 <template>

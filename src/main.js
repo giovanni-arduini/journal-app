@@ -1,14 +1,16 @@
 import { createApp } from "vue";
-import "./index.css";
+import "./tailwind.css";
 import App from "./App.vue";
-import MainList from "./MainList.vue";
-import BasicModal from "./BasicModal.vue";
-import SideTab from "./SideTab.vue";
+import MainList from "./components/MainList.vue";
+import BasicModal from "./components/BasicModal.vue";
+import SideTab from "./components/SideTab.vue";
+import PostCard from "./components/PostCard.vue";
 
 const app = createApp(App);
 
 app.component("MainList", MainList);
-app.component("BasicModal", BasicModal);
 app.component("SideTab", SideTab);
+app.component("PostCard", PostCard);
+app.component("BasicModal", BasicModal);
 
 app.mount("#app");
