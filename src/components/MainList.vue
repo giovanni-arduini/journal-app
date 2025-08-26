@@ -11,17 +11,27 @@
 //   state.showDetail = false;
 // }
 
+import PostCard from "./PostCard.vue";
+
 const props = defineProps({
-  files: {
+  posts: {
     type: Array,
     required: false,
   },
 });
 
-const filteredFiles = props.files;
+const filteredPosts = props.posts;
+console.log(filteredPosts);
 </script>
 
 <template>
+  <div class="flex flex-col">
+    <h1 class="text-center">Le mie tappe</h1>
+    <div class="flex grid grid-cols-4 gap-2 col-start-2 col-end-5">
+      <PostCard v-for="post in filteredPosts" :key="post.id" :post="post" />
+    </div>
+  </div>
+
   <!-- <div
     v-if="state.showDetail"
     class="row-start-3 col-start-2 row-end-6 col-end-6 bg-white"
@@ -29,15 +39,15 @@ const filteredFiles = props.files;
     <FileDetail :file="fileDetails" :hide-detail="hideDetail" />
   </div> -->
 
-  <div class="row-start-3 col-start-2 row-end-6 col-end-5">
+  <div>
     <!-- <div>
       <h2 class="mt-4">{{ activeSectionName }}</h2>
     </div> -->
     <div
-      class="flex items-start justify-center text-center row-start-3 col-start-2 row-end-6 col-end-6 bg-white rounded-xl mb-10"
+      class="flex items-start justify-center text-center bg-white rounded-xl mb-10"
     >
       <table
-        v-if="filteredFiles.length > 0"
+        v-if="filteredPosts.length > 0"
         class="m-3 w-4/5 table-auto border-separate border-spacing-2 border-gray-400 dark:border-gray-500"
       >
         <thead>
@@ -52,7 +62,7 @@ const filteredFiles = props.files;
         <tbody>
           <tr
             class="bg-gray-100 odd:bg-gray-200"
-            v-for="file in filteredFiles"
+            v-for="file in filteredPosts"
             :key="file.id"
           >
             <td>
