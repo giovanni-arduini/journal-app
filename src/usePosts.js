@@ -1,10 +1,12 @@
 import { reactive, computed, watch, onMounted } from "vue";
-// import axios from "axios";
+import axios from "axios";
 
-// const API_URL = "http://localhost:5001/api";
+const API_URL = "http://localhost:5001/api";
 
 const state = reactive({
-  postsList: [],
+  postsList: [
+    { name: "Giappone", category: "gigi", mood: "chill", date: "22/07/2024" },
+  ],
   showDetail: false,
   activeFilter: null,
 });
@@ -24,17 +26,17 @@ const filteredPosts = computed(() => {
   return state.postsList;
 });
 
-// const activeSectionName = computed(() => {
-//   if (state.activeFilter === "special") return "Preferiti";
-//   if (state.activeFilter === "current") return "Anno corrente";
-//   if (typeof state.activeFilter === "number") {
-//     const folder = folderList.value.find((f) => f.id === state.activeFilter);
-//     return folder ? folder.name : "";
-//   }
-//   return "Tutti i file";
-// });
+const activeSectionName = computed(() => {
+  if (state.activeFilter === "special") return "Preferiti";
+  if (state.activeFilter === "current") return "Anno corrente";
+  if (typeof state.activeFilter === "number") {
+    const folder = folderList.value.find((f) => f.id === state.activeFilter);
+    return folder ? folder.name : "";
+  }
+  return "Tutti i file";
+});
 
-export function useFiles() {
+export function usePosts() {
   function setFilter(filter) {
     state.activeFilter = filter;
   }
@@ -48,9 +50,9 @@ export function useFiles() {
     }
   }
 
-  onMounted(() => {
-    loadPosts();
-  });
+  // onMounted(() => {
+  //   loadPosts();
+  // });
 
   async function addNewPost(newPost) {
     try {
@@ -100,13 +102,13 @@ export function useFiles() {
   }
 
   // watch per osservare ogni cambiamento
-  watch(
-    () => state.postsList,
-    ([newPost]) => {
-      console.log("filesList cambiata:", newPost);
-    },
-    { deep: true }
-  );
+  // watch(
+  //   () => state.postsList,
+  //   ([newPost]) => {
+  //     console.log("filesList cambiata:", newPost);
+  //   },
+  //   { deep: true }
+  // );
 
   return {
     state,
