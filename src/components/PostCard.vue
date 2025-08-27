@@ -3,12 +3,15 @@ import { ref, onMounted } from "vue";
 const props = defineProps({ post: { type: Object, required: true } });
 const post = props.post;
 
-const decorationType = ref("scotch");
+const decorationType = ref("");
+const decorationColor = ref(null);
 const rotation = ref(0);
 const isFlipped = ref(false);
 
 onMounted(() => {
   decorationType.value = Math.random() < 0.5 ? "scotch" : "pin";
+  decorationColor.value = Math.random() < 0.5 ? 1 : 2;
+
   rotation.value = Math.random() * 20 - 10;
 });
 
@@ -28,10 +31,16 @@ function flipCard() {
     <Transition name="scotch-move" mode="out-in">
       <div v-if="!isFlipped && decorationType === 'scotch'" key="scotch">
         <div
-          class="absolute -left-5 top-2 w-24 h-8 bg-yellow-200 rotate-[-45deg] rounded opacity-80 shadow-md z-10 scotch-left"
+          class="absolute -left-5 top-2 w-24 h-8 rotate-[-45deg] rounded opacity-80 shadow-md z-10 scotch-left"
+          :class="
+            decorationColor === 1 ? 'bg-yellow-200' : 'bg-yellow-800 opacity-10'
+          "
         ></div>
         <div
-          class="absolute -right-4 top-2 w-24 h-8 bg-yellow-200 rotate-[45deg] rounded opacity-80 shadow-md z-10 scotch-right"
+          class="absolute -right-4 top-2 w-24 h-8 rotate-[45deg] rounded opacity-80 shadow-md z-10 scotch-right"
+          :class="
+            decorationColor === 1 ? 'bg-yellow-200' : 'bg-yellow-800 opacity-10'
+          "
         ></div>
       </div>
     </Transition>
@@ -44,6 +53,7 @@ function flipCard() {
       >
         <div
           class="w-7 h-7 bg-red-600 rounded-full border-gray-200 border-2 shadow-md"
+          :class="decorationColor === 1 ? 'bg-red-600' : 'bg-blue-600'"
         ></div>
       </div>
     </Transition>
