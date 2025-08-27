@@ -104,27 +104,30 @@ function flipCard() {
           <figure
             class="w-full h-64 flex items-center justify-center overflow-hidden rounded-t-lg p-2"
           >
-            <template v-if="post.media.photo">
-              <img
-                :src="post.media.photo"
-                alt="immagine"
-                class="object-cover w-full h-full"
-              />
-            </template>
-            <template v-else-if="post.media.video">
-              <img
-                :src="post.media.videoPreview"
-                controls
-                class="object-cover w-full h-full"
-              />
-            </template>
-            <template v-else>
-              <div
-                class="w-full h-full flex items-center justify-center text-gray-400"
-              >
-                Nessun media disponibile
-              </div>
-            </template>
+           <template v-if="post.media && post.media.length">
+    <template v-for="mediaItem in post.media" :key="mediaItem._id">
+      <img
+        v-if="mediaItem.type === 'photo'"
+        :src="mediaItem.url"
+        alt="immagine"
+        class="object-cover w-full h-full mb-2"
+      />
+      <video
+        v-else-if="mediaItem.type === 'video'"
+        :src="mediaItem.url"
+        :poster="mediaItem.videoPreview"
+        controls
+        class="object-cover w-full h-full mb-2"
+      ></video>
+    </template>
+  </template>
+  <template v-else>
+    <div
+      class="w-full h-full flex items-center justify-center text-gray-400"
+    >
+      Nessun media disponibile
+    </div>
+  </template>
           </figure>
           <div class="w-full px-4 pt-3 pb-2 bg-white rounded-b-lg text-center">
             <h1 class="text-lg font-bold text-gray-800">{{ post.name }}</h1>
@@ -144,10 +147,10 @@ function flipCard() {
         >
           <div class="w-full px-4 pt-3 pb-2 text-center">
             <h2 class="text-lg font-bold text-gray-800">
-              Retro della Polaroid
+              La mia tappa
             </h2>
             <p class="text-sm text-gray-600">
-              Altri dati: {{ post.description }}
+              {{ post.description }}
             </p>
             <div
               v-for="tag in tags"
@@ -164,7 +167,7 @@ function flipCard() {
               class="mt-4 px-4 py-2 bg-blue-500 text-white rounded shadow"
               @click.stop="showDetail"
             >
-              Vedi dettagli completi
+              Vai al ricordo!
             </button>
           </div>
         </div>
