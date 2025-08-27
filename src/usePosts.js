@@ -40,6 +40,7 @@ const state = reactive({
         photo: null,
         video:
           "https://sample-videos.com/video123/mp4/720/big_buck_bunny_720p_1mb.mp4",
+        videoPreview: "https://picsum.photos/600/400?random=99", // esempio
       },
       location: {
         manual: "Sentiero delle Cinque Terre",
@@ -101,6 +102,7 @@ const state = reactive({
         photo: null,
         video:
           "https://sample-videos.com/video123/mp4/720/big_buck_bunny_720p_1mb.mp4",
+        videoPreview: "https://picsum.photos/600/400?random=99", // esempio
       },
       location: {
         manual: "Barcellona, Spagna",
