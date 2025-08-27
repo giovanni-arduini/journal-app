@@ -13,15 +13,15 @@
 
 import PostCard from "./PostCard.vue";
 
-const props = defineProps({
-  posts: {
-    type: Array,
-    required: false,
-  },
-});
+// const props = defineProps({
+//   posts: {
+//     type: Array,
+//     required: true,
+//   },
+// });
 
-const filteredPosts = props.posts;
-console.log(filteredPosts);
+import { usePosts } from "@/usePosts";
+const { filteredPosts } = usePosts();
 </script>
 
 <template>

@@ -1,11 +1,6 @@
 <script setup>
 import MainList from "./components/MainList.vue";
-import { usePosts } from "./usePosts";
-
-const { state } = usePosts();
-const postsList = state.postsList;
-
-const folderList = ["2", "3"];
+import SideTab from "./components/SideTab.vue";
 </script>
 
 <template>
@@ -14,7 +9,7 @@ const folderList = ["2", "3"];
       <SideTab :folder-list="folderList" />
     </div>
     <div class="col-span-3">
-      <MainList :posts="postsList" />
+      <MainList />
     </div>
   </div>
 </template>
