@@ -25,7 +25,7 @@ const { filteredPosts } = usePosts();
 </script>
 
 <template>
-  <div class="py-8 px-4">
+  <div class="py-8 px-10">
     <h1 class="text-2xl font-bold text-center mb-8">Le mie tappe</h1>
     <div
       :class="[
