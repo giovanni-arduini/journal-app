@@ -9,9 +9,13 @@ const folderList = ["2", "3"];
 </script>
 
 <template>
-  <div class="grid grid-cols-4 gap-0 min-h-screen bg-gray-100">
-    <SideTab :folder-list="folderList" />
-    <MainList :posts="postsList" />
+  <div class="grid grid-cols-4 min-h-screen bg-gray-100">
+    <div class="col-span-1">
+      <SideTab :folder-list="folderList" />
+    </div>
+    <div class="col-span-3">
+      <MainList :posts="postsList" />
+    </div>
   </div>
 </template>
 
