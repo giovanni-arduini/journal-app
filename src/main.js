@@ -7,6 +7,7 @@ import SideTab from "./components/SideTab.vue";
 import PostCard from "./components/PostCard.vue";
 import TagInput from "./components/TagInput.vue";
 import PostDetail from "./components/PostDetail.vue";
+import NewPostForm from "./components/NewPostForm.vue";
 
 const app = createApp(App);
 
@@ -16,5 +17,6 @@ app.component("SideTab", SideTab);
 app.component("PostCard", PostCard);
 app.component("BasicModal", BasicModal);
 app.component("PostDetail", PostDetail);
+app.component("NewPostForm", NewPostForm);
 
 app.mount("#app");
