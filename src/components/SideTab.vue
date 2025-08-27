@@ -48,21 +48,9 @@
       <!-- Tag -->
       <div>
         <label class="block mb-1 font-semibold">Tag</label>
-        <input
-          type="text"
-          class="w-full p-2 rounded border"
-          placeholder="Inserisci tag separati da virgola"
-          @input="
-            (e) =>
-              setTagsFilter(
-                e.target.value
-                  .split(',')
-                  .map((t) => t.trim())
-                  .filter(Boolean)
-              )
-          "
-        />
+        <TagInput v-model="tagsFilter" :suggestions="allTags" />
       </div>
+
       <!-- Distanza -->
       <div>
         <label class="block mb-1 font-semibold"
@@ -165,9 +153,8 @@
 </template>
 
 <script setup>
-import { ref } from "vue";
-// import BasicModal from "./BasicModal.vue";
-
+import { ref, watch, computed } from "vue";
+import TagInput from "@/components/TagInput.vue";
 import { usePosts } from "@/usePosts";
 
 const {
@@ -178,6 +165,17 @@ const {
   setDistanceFilter,
   setTagsFilter,
 } = usePosts();
+
+const tagsFilter = ref([]);
+
+watch(tagsFilter, (newTags) => {
+  setTagsFilter(newTags);
+});
+
+const allTags = computed(() => {
+  const all = state.postsList.flatMap((p) => p.tags || []);
+  return Array.from(new Set(all));
+});
 
 const radius = ref(100); // default raggio in km
 function setCurrentLocation() {
