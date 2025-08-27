@@ -1,24 +1,150 @@
+<script setup>
+import { ref, watch, computed } from "vue";
+import TagInput from "@/components/TagInput.vue";
+import { usePosts } from "@/usePosts";
+import NewPostForm from "./NewPostForm.vue";
+
+defineProps({
+  folderList: Array, // oppure il tipo corretto
+});
+
+const {
+  setFilter,
+  state,
+  setSearchText,
+  setMoodFilter,
+  setDistanceFilter,
+  setTagsFilter,
+} = usePosts();
+
+const tagsFilter = ref([]);
+
+watch(tagsFilter, (newTags) => {
+  setTagsFilter(newTags);
+});
+
+const allTags = computed(() => {
+  const all = state.postsList.flatMap((p) => p.tags || []);
+  return Array.from(new Set(all));
+});
+
+const radius = ref(100); // default raggio in km
+function setCurrentLocation() {
+  if (state.currentLocation) {
+    // Disattiva solo la posizione e il filtro distanza
+    state.currentLocation = null;
+    setDistanceFilter(null);
+    return;
+  }
+  if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition((pos) => {
+      state.currentLocation = {
+        lat: pos.coords.latitude,
+        lng: pos.coords.longitude,
+      };
+      setDistanceFilter({
+        lat: pos.coords.latitude,
+        lng: pos.coords.longitude,
+        radius: radius.value,
+      });
+    });
+  } else {
+    alert("Geolocalizzazione non supportata");
+  }
+}
+
+function updateRadius() {
+  if (state.currentLocation) {
+    setDistanceFilter({
+      lat: state.currentLocation.lat,
+      lng: state.currentLocation.lng,
+      radius: radius.value,
+    });
+  }
+}
+
+function showFolderContent(folderIdOrTag) {
+  state.showDetail = false;
+  console.log(state.showDetail);
+  setFilter(folderIdOrTag);
+}
+
+const showCreationModal = ref(false);
+// const showDeleteFolderModal = ref(false);
+// const folderToDelete = ref(null); // 👈 id cartella selezionata
+
+// function handleDeleteRequest(id) {
+//   folderToDelete.value = id; // salvo id da cancellare
+//   showDeleteFolderModal.value = true; // apro il modale
+// }
+
+// function confirmDelete() {
+//   if (folderToDelete.value !== null) {
+//     deleteFolder(folderToDelete.value); // cancello solo alla conferma
+//     folderToDelete.value = null; // reset
+//     showDeleteFolderModal.value = false; // chiudo il modale
+//     loadFolders();
+//   }
+// }
+
+// function cancelDelete() {
+//   folderToDelete.value = null; // reset
+//   showDeleteFolderModal.value = false; // chiudo senza cancellare
+// }
+
+// function toggleShowDeleteFolderModal() {
+//   showDeleteFolderModal.value = !showDeleteFolderModal.value;
+// }
+
+// function handleDeleteFolder(id) {
+//   toggleShowDeleteFolderModal();
+
+//   deleteFolder(id);
+// }
+
+// function getToday() {
+//   return new Date().toISOString().split("T")[0];
+// }
+
+// function handleAddFolder(data) {
+//   if (data.name.trim() === "") {
+//     alert("Inserire un nome ");
+//   }
+//   try {
+//     addNewFolder({
+//       name: data.name,
+//       date: new Date(data.date),
+//       category: data.category,
+//     });
+//     loadFolders();
+//   } catch (err) {
+//     console.error(err);
+//   }
+// }
+
+// function toggleNewFolderModal() {
+//   showFolderModal.value = !showFolderModal.value;
+// }
+
+// function closeModal() {
+//   showFolderModal.value = false;
+// }
+</script>
+
 <template>
+  <NewPostForm
+    :visible="showCreationModal"
+    @close="showCreationModal = false"
+  />
   <div class="row-start-1 col-start-1 row-end-6 col-end-2 px-10">
-    <!-- <BasicModal
-      :open="showFolderModal"
-      :title="`Crea cartella`"
-      :submitLabel="`Crea`"
-      :fields="formFields"
-      :initialValues="{ name: '', category: 'Ricetta', date: getToday() }"
-      :previousList="folderList.map((f) => f.name)"
-      @submit="handleAddFolder"
-      @close="showFolderModal = false"
-    />
-
-    <BasicModal -->
-    <!-- :open="showDeleteFolderModal"
-      :title="`Elimina cartella`"
-      :submitLabel="`Elimina`"
-      @submit="confirmDelete"
-      @close="cancelDelete"
-    /> -->
-
+    <div class="flex justify-center">
+      <button
+        class="my-10 bg-green-200 p-5 rounded-xl hover:bg-green-300 shadow"
+        @click="showCreationModal = true"
+      >
+        Aggiungi un ricordo!
+      </button>
+    </div>
     <form class="mb-8 space-y-4" @submit.prevent>
       <!-- Testo -->
       <div>
@@ -151,133 +277,5 @@
     </div>
   </div>
 </template>
-
-<script setup>
-import { ref, watch, computed } from "vue";
-import TagInput from "@/components/TagInput.vue";
-import { usePosts } from "@/usePosts";
-
-const {
-  setFilter,
-  state,
-  setSearchText,
-  setMoodFilter,
-  setDistanceFilter,
-  setTagsFilter,
-} = usePosts();
-
-const tagsFilter = ref([]);
-
-watch(tagsFilter, (newTags) => {
-  setTagsFilter(newTags);
-});
-
-const allTags = computed(() => {
-  const all = state.postsList.flatMap((p) => p.tags || []);
-  return Array.from(new Set(all));
-});
-
-const radius = ref(100); // default raggio in km
-function setCurrentLocation() {
-  if (state.currentLocation) {
-    // Disattiva solo la posizione e il filtro distanza
-    state.currentLocation = null;
-    setDistanceFilter(null);
-    return;
-  }
-  if (navigator.geolocation) {
-    navigator.geolocation.getCurrentPosition((pos) => {
-      state.currentLocation = {
-        lat: pos.coords.latitude,
-        lng: pos.coords.longitude,
-      };
-      setDistanceFilter({
-        lat: pos.coords.latitude,
-        lng: pos.coords.longitude,
-        radius: radius.value,
-      });
-    });
-  } else {
-    alert("Geolocalizzazione non supportata");
-  }
-}
-
-function updateRadius() {
-  if (state.currentLocation) {
-    setDistanceFilter({
-      lat: state.currentLocation.lat,
-      lng: state.currentLocation.lng,
-      radius: radius.value,
-    });
-  }
-}
-
-function showFolderContent(folderIdOrTag) {
-  state.showDetail = false;
-  console.log(state.showDetail);
-  setFilter(folderIdOrTag);
-}
-
-// const showFolderModal = ref(false);
-// const showDeleteFolderModal = ref(false);
-// const folderToDelete = ref(null); // 👈 id cartella selezionata
-
-// function handleDeleteRequest(id) {
-//   folderToDelete.value = id; // salvo id da cancellare
-//   showDeleteFolderModal.value = true; // apro il modale
-// }
-
-// function confirmDelete() {
-//   if (folderToDelete.value !== null) {
-//     deleteFolder(folderToDelete.value); // cancello solo alla conferma
-//     folderToDelete.value = null; // reset
-//     showDeleteFolderModal.value = false; // chiudo il modale
-//     loadFolders();
-//   }
-// }
-
-// function cancelDelete() {
-//   folderToDelete.value = null; // reset
-//   showDeleteFolderModal.value = false; // chiudo senza cancellare
-// }
-
-// function toggleShowDeleteFolderModal() {
-//   showDeleteFolderModal.value = !showDeleteFolderModal.value;
-// }
-
-// function handleDeleteFolder(id) {
-//   toggleShowDeleteFolderModal();
-
-//   deleteFolder(id);
-// }
-
-// function getToday() {
-//   return new Date().toISOString().split("T")[0];
-// }
-
-// function handleAddFolder(data) {
-//   if (data.name.trim() === "") {
-//     alert("Inserire un nome ");
-//   }
-//   try {
-//     addNewFolder({
-//       name: data.name,
-//       date: new Date(data.date),
-//       category: data.category,
-//     });
-//     loadFolders();
-//   } catch (err) {
-//     console.error(err);
-//   }
-// }
-
-// function toggleNewFolderModal() {
-//   showFolderModal.value = !showFolderModal.value;
-// }
-
-// function closeModal() {
-//   showFolderModal.value = false;
-// }
-</script>
 
 <style focused></style>
