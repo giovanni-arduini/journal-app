@@ -6,6 +6,7 @@ const API_URL = "http://localhost:5001/api";
 const state = reactive({
   postsList: [
     { name: "Giappone", category: "gigi", mood: "chill", date: "22/07/2024" },
+    { name: "Corsica", category: "gigi", mood: "wow", date: "27/06/2025" },
   ],
   showDetail: false,
   activeFilter: null,
