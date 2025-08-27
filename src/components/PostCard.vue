@@ -1,5 +1,7 @@
 <script setup>
 import { ref, onMounted } from "vue";
+import { usePosts, getTagColor } from "@/usePosts";
+
 const props = defineProps({ post: { type: Object, required: true } });
 const post = props.post;
 
@@ -7,12 +9,13 @@ const decorationType = ref("");
 const decorationColor = ref(null);
 const rotation = ref(0);
 const isFlipped = ref(false);
+const tags = post.tags;
 
 onMounted(() => {
   decorationType.value = Math.random() < 0.5 ? "scotch" : "pin";
   decorationColor.value = Math.random() < 0.5 ? 1 : 2;
 
-  rotation.value = Math.random() * 20 - 10;
+  rotation.value = Math.random() * 15 - 5;
 });
 
 function flipCard() {
@@ -99,7 +102,14 @@ function flipCard() {
           <p class="text-sm text-gray-600">
             Altri dati: {{ post.description }}
           </p>
-          <p class="text-xs text-gray-400">ID: {{ post.id }}</p>
+          <div
+            v-for="tag in tags"
+            :key="tag"
+            class="inline-block px-2 py-1 mr-2 mb-2 rounded text-xs font-semibold shadow"
+            :style="{ backgroundColor: getTagColor(tag) }"
+          >
+            {{ tag }}
+          </div>
         </div>
       </div>
     </div>

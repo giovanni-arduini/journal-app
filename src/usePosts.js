@@ -1,8 +1,16 @@
-import { reactive, computed, watch, onMounted } from "vue";
+import { reactive, computed } from "vue";
 import axios from "axios";
 
 const API_URL = "http://localhost:5001/api";
 
+export function getTagColor(tag) {
+  let hash = 0;
+  for (let i = 0; i < tag.length; i++) {
+    hash = tag.charCodeAt(i) + ((hash << 5) - hash);
+  }
+  const hue = Math.abs(hash) % 360;
+  return `hsl(${hue},70%,80%)`;
+}
 const state = reactive({
   postsList: [
     {
@@ -137,20 +145,20 @@ function getDistance(lat1, lng1, lat2, lng2) {
 const filteredPosts = computed(() => {
   let posts = state.postsList;
 
-  // // Filtro per testo
-  // if (state.searchText) {
-  //   const txt = state.searchText.toLowerCase();
-  //   posts = posts.filter(
-  //     (p) =>
-  //       (p.name && p.name.toLowerCase().includes(txt)) ||
-  //       (p.description && p.description.toLowerCase().includes(txt))
-  //   );
-  // }
+  // Filtro per testo
+  if (state.searchText) {
+    const txt = state.searchText.toLowerCase();
+    posts = posts.filter(
+      (p) =>
+        (p.name && p.name.toLowerCase().includes(txt)) ||
+        (p.description && p.description.toLowerCase().includes(txt))
+    );
+  }
 
-  // // Filtro per stato d'animo
-  // if (state.moodFilter) {
-  //   posts = posts.filter((p) => p.mood === state.moodFilter);
-  // }
+  // Filtro per stato d'animo
+  if (state.moodFilter) {
+    posts = posts.filter((p) => p.mood === state.moodFilter);
+  }
 
   // Filtro per distanza: solo se posizione e raggio sono validi
   const df = state.distanceFilter;
@@ -179,21 +187,21 @@ const filteredPosts = computed(() => {
     state.distanceFilter
   );
 
-  // // Filtro per tags
-  // if (state.tagsFilter && state.tagsFilter.length > 0) {
-  //   posts = posts.filter(
-  //     (p) => p.tags && p.tags.some((tag) => state.tagsFilter.includes(tag))
-  //   );
-  // }
+  // Filtro per tags
+  if (state.tagsFilter && state.tagsFilter.length > 0) {
+    posts = posts.filter(
+      (p) => p.tags && p.tags.some((tag) => state.tagsFilter.includes(tag))
+    );
+  }
 
-  // // Filtro per sezione (special, current, folderId)
-  // if (state.activeFilter === "special") posts = posts.filter((f) => f.special);
-  // else if (typeof state.activeFilter === "number")
-  //   posts = posts.filter((f) => f.folderId === state.activeFilter);
-  // else if (state.activeFilter === "current") {
-  //   const currentYear = new Date().getFullYear();
-  //   posts = posts.filter((f) => new Date(f.date).getFullYear() === currentYear);
-  // }
+  // Filtro per sezione (special, current, folderId)
+  if (state.activeFilter === "special") posts = posts.filter((f) => f.special);
+  else if (typeof state.activeFilter === "number")
+    posts = posts.filter((f) => f.folderId === state.activeFilter);
+  else if (state.activeFilter === "current") {
+    const currentYear = new Date().getFullYear();
+    posts = posts.filter((f) => new Date(f.date).getFullYear() === currentYear);
+  }
 
   console.log("Risultato finale:", posts);
   return posts;
@@ -213,7 +221,7 @@ function setDistanceFilter(filter) {
     state.distanceFilter = filter;
   }
 }
-w;
+
 function setTagsFilter(tags) {
   state.tagsFilter = tags;
 }
@@ -316,6 +324,8 @@ export function usePosts() {
     updatePost,
     deletePost,
     toggleSpecial,
+
+    getTagColor,
 
     setDistanceFilter,
     setFilter,
