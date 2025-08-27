@@ -151,39 +151,23 @@ function getStickerStyle(index) {
           class="absolute inset-0 flex flex-col items-center bg-white rounded-lg shadow-lg pb-6 pt-4 mx-auto rotate-y-180"
           style="backface-visibility: hidden; transform: rotateY(180deg)"
         >
-          <!-- Cornice interna che ricalca la img del fronte -->
           <div
-            class="w-full h-64 flex items-center justify-center overflow-hidden rounded-t-lg p-2"
+            class="w-full h-64 flex flex-col items-center justify-center overflow-hidden rounded-t-lg p-2"
           >
-            <div
-              class="w-full h-full"
-              style="
-                border: 1px dashed #bbb;
-                box-sizing: border-box;
-                pointer-events: none;
-              "
-            >
-              <div
-                class="w-full px-4 pt-3 pb-2 text-center"
-                style="position: relative; z-index: 2"
+            <div class="w-full px-4 pt-3 pb-2 text-center">
+              <h2 class="text-lg font-bold text-gray-800">La mia tappa</h2>
+              <p class="text-sm text-gray-600">
+                {{ post.description }}
+              </p>
+              <button
+                class="mt-4 px-4 py-2 bg-blue-500 text-white rounded shadow"
+                @click.stop="showDetail"
               >
-                <h2 class="text-lg font-bold text-gray-800">La mia tappa</h2>
-                <p class="text-sm text-gray-600">
-                  {{ post.description }}
-                </p>
-                <div v-if="isFlipped" class="...">
-                  <!-- ...altri dettagli... -->
-                  <button
-                    class="mt-4 px-4 py-2 bg-blue-500 text-white rounded shadow"
-                    @click.stop="showDetail"
-                  >
-                    Vai al ricordo!
-                  </button>
-                </div>
-              </div>
+                Vai al ricordo!
+              </button>
             </div>
           </div>
-          <!-- TAGS: ora sono fuori dalla cornice, in basso -->
+          <!-- TAGS: sticker style, fuori dalla zona descrizione -->
           <div
             class="w-full px-4 pt-2 pb-2 text-center flex flex-wrap justify-center items-center"
           >
