@@ -18,6 +18,73 @@
       @submit="confirmDelete"
       @close="cancelDelete"
     /> -->
+
+    <form class="mb-8 space-y-4" @submit.prevent>
+      <!-- Testo -->
+      <div>
+        <label class="block mb-1 font-semibold">Testo</label>
+        <input
+          type="text"
+          class="w-full p-2 rounded border"
+          placeholder="Cerca per nome o descrizione"
+          @input="(e) => setSearchText(e.target.value)"
+        />
+      </div>
+      <!-- Stato d'animo -->
+      <div>
+        <label class="block mb-1 font-semibold">Stato d'animo</label>
+        <select
+          class="w-full p-2 rounded border"
+          @change="(e) => setMoodFilter(e.target.value)"
+        >
+          <option value="">Tutti</option>
+          <option value="rilassato">Rilassato</option>
+          <option value="emozionato">Emozionato</option>
+          <option value="felice">Felice</option>
+          <option value="sereno">Sereno</option>
+          <option value="stupito">Stupito</option>
+        </select>
+      </div>
+      <!-- Tag -->
+      <div>
+        <label class="block mb-1 font-semibold">Tag</label>
+        <input
+          type="text"
+          class="w-full p-2 rounded border"
+          placeholder="Inserisci tag separati da virgola"
+          @input="
+            (e) =>
+              setTagsFilter(
+                e.target.value
+                  .split(',')
+                  .map((t) => t.trim())
+                  .filter(Boolean)
+              )
+          "
+        />
+      </div>
+      <!-- Distanza -->
+      <div>
+        <label class="block mb-1 font-semibold"
+          >Distanza da punto attuale (km)</label
+        >
+        <input
+          type="number"
+          min="1"
+          class="w-full p-2 rounded border mb-2"
+          placeholder="Raggio in km"
+          v-model.number="radius"
+        />
+        <button
+          type="button"
+          class="bg-blue-500 text-white px-3 py-1 rounded"
+          @click="setCurrentLocation"
+        >
+          Usa posizione attuale
+        </button>
+      </div>
+    </form>
+
     <div class="mt-10">
       <div
         id="quick-add"
@@ -28,7 +95,7 @@
       </div>
 
       <!-- ordinamento cartelle -->
-      <div id="folder-list-container ">
+      <!-- <div id="folder-list-container ">
         <form action="" class="mb-8">
           <div>
             <label for="">Ordina per </label>
@@ -39,7 +106,7 @@
             </select>
           </div>
         </form>
-      </div>
+      </div> -->
 
       <!-- lista delle cartelle -->
       <!-- <div class="mb-8">
@@ -92,34 +159,35 @@
 </template>
 
 <script setup>
-// import { ref } from "vue";
+import { ref } from "vue";
 // import BasicModal from "./BasicModal.vue";
 
 import { usePosts } from "@/usePosts";
 
-const { setFilter, state } = usePosts();
-const postsList = state.postsList;
+const {
+  setFilter,
+  state,
+  setSearchText,
+  setMoodFilter,
+  setDistanceFilter,
+  setTagsFilter,
+} = usePosts();
 
-// const formFields = [
-//   {
-//     name: "name",
-//     label: "Nome cartella",
-//     type: "text",
-//     placeholder: "Inserisci il nome",
-//     required: true,
-//   },
-//   {
-//     name: "category",
-//     label: "Categoria",
-//     type: "select",
-//     options: ["Mare", "Montagna", "Città", "Campagna"],
-//   },
-//   {
-//     name: "date",
-//     label: "Data della tappa",
-//     type: "date",
-//   },
-// ];
+const radius = ref(10); // default raggio in km
+
+function setCurrentLocation() {
+  if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition((pos) => {
+      setDistanceFilter({
+        lat: pos.coords.latitude,
+        lng: pos.coords.longitude,
+        radius: radius.value,
+      });
+    });
+  } else {
+    alert("Geolocalizzazione non supportata");
+  }
+}
 
 function showFolderContent(folderIdOrTag) {
   state.showDetail = false;
