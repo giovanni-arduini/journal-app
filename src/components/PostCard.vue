@@ -1,6 +1,7 @@
 <script setup>
 import { ref, onMounted } from "vue";
 import { usePosts, getTagColor } from "@/usePosts";
+import PostDetail from "./PostDetail.vue";
 
 const props = defineProps({ post: { type: Object, required: true } });
 const post = props.post;
@@ -10,6 +11,14 @@ const decorationColor = ref(null);
 const rotation = ref(0);
 const isFlipped = ref(false);
 const tags = post.tags;
+const showDetailModal = ref(false);
+
+function showDetail() {
+  showDetailModal.value = true;
+}
+function closeDetail() {
+  showDetailModal.value = false;
+}
 
 onMounted(() => {
   decorationType.value = Math.random() < 0.5 ? "scotch" : "pin";
@@ -24,9 +33,15 @@ function flipCard() {
 </script>
 
 <template>
+  <PostDetail
+    v-if="showDetailModal"
+    :post="post"
+    :visible="showDetailModal"
+    @close="closeDetail"
+  />
   <div
     class="relative flex flex-col items-center w-full max-w-xs aspect-[3/4] mx-auto"
-    :class="isFlipped ? 'z-50' : 'z-10'"
+    :class="isFlipped ? 'z-40' : 'z-10'"
     @click="flipCard"
     style="perspective: 1200px; cursor: pointer"
   >
@@ -89,11 +104,27 @@ function flipCard() {
           <figure
             class="w-full h-64 flex items-center justify-center overflow-hidden rounded-t-lg p-2"
           >
-            <img
-              :src="post.imgUrl"
-              alt="immagine"
-              class="object-cover w-full h-full"
-            />
+            <template v-if="post.media.photo">
+              <img
+                :src="post.media.photo"
+                alt="immagine"
+                class="object-cover w-full h-full"
+              />
+            </template>
+            <template v-else-if="post.media.video">
+              <img
+                :src="post.media.videoPreview"
+                controls
+                class="object-cover w-full h-full"
+              />
+            </template>
+            <template v-else>
+              <div
+                class="w-full h-full flex items-center justify-center text-gray-400"
+              >
+                Nessun media disponibile
+              </div>
+            </template>
           </figure>
           <div class="w-full px-4 pt-3 pb-2 bg-white rounded-b-lg text-center">
             <h1 class="text-lg font-bold text-gray-800">{{ post.name }}</h1>
@@ -126,6 +157,15 @@ function flipCard() {
             >
               {{ tag }}
             </div>
+          </div>
+          <div v-if="isFlipped" class="...">
+            <!-- ...altri dettagli... -->
+            <button
+              class="mt-4 px-4 py-2 bg-blue-500 text-white rounded shadow"
+              @click.stop="showDetail"
+            >
+              Vedi dettagli completi
+            </button>
           </div>
         </div>
       </div>
