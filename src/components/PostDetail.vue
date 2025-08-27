@@ -12,12 +12,30 @@
         &times;
       </button>
       <h2 class="text-3xl font-bold mb-4">{{ post.name }}</h2>
-      <div v-if="post.media.photo" class="mb-4">
-        <img :src="post.media.photo" alt="Foto" class="w-full rounded-lg" />
-      </div>
-      <div v-if="post.media.video" class="mb-4">
-        <video :src="post.media.video" controls class="w-full rounded-lg" />
-      </div>
+      <div class="mb-4">
+  <template v-if="post.media && post.media.length">
+    <template v-for="mediaItem in post.media" :key="mediaItem._id">
+      <img
+        v-if="mediaItem.type === 'photo'"
+        :src="mediaItem.url"
+        alt="Foto"
+        class="w-full rounded-lg mb-2"
+      />
+      <video
+        v-else-if="mediaItem.type === 'video'"
+        :src="mediaItem.url"
+        :poster="mediaItem.videoPreview"
+        controls
+        class="w-full rounded-lg mb-2"
+      ></video>
+    </template>
+  </template>
+  <template v-else>
+    <div class="w-full flex items-center justify-center text-gray-400">
+      Nessun media disponibile
+    </div>
+  </template>
+</div>
       <div class="mb-2 text-gray-700">
         <strong>Luogo:</strong> {{ post.location.manual }}
       </div>
@@ -28,21 +46,21 @@
         <strong>Stato d'animo:</strong> {{ post.mood }}
       </div>
       <div class="mb-2 text-gray-700">
-        <strong>Riflessione positiva:</strong> {{ post.positiveReflection }}
+        <strong>Riflessione positiva:</strong> {{ post.positive_reflection }}
       </div>
       <div class="mb-2 text-gray-700">
-        <strong>Riflessione negativa:</strong> {{ post.negativeReflection }}
+        <strong>Riflessione negativa:</strong> {{ post.negative_reflection }}
       </div>
       <div class="mb-2 text-gray-700">
         <strong>Sforzo fisico:</strong>
-        <span v-for="n in post.physicalEffort" :key="n">💪</span>
+        <span v-for="n in post.physical_effort" :key="n">💪</span>
       </div>
       <div class="mb-2 text-gray-700">
         <strong>Sforzo economico:</strong>
-        <span v-for="n in post.economicEffort" :key="n">💸</span>
+        <span v-for="n in post.economic_effort" :key="n">💸</span>
       </div>
       <div class="mb-2 text-gray-700">
-        <strong>Spesa effettiva:</strong> €{{ post.actualExpense }}
+        <strong>Spesa effettiva:</strong> €{{ post.actual_expense }}
       </div>
       <div class="mt-4">
         <span
