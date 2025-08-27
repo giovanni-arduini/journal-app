@@ -70,17 +70,23 @@
         >
         <input
           type="number"
-          min="1"
+          min="10"
           class="w-full p-2 rounded border mb-2"
           placeholder="Raggio in km"
           v-model.number="radius"
+          @input="updateRadius"
+          :disabled="!state.currentLocation"
         />
         <button
           type="button"
           class="bg-blue-500 text-white px-3 py-1 rounded"
           @click="setCurrentLocation"
         >
-          Usa posizione attuale
+          {{
+            !state.currentLocation
+              ? "Usa posizione attuale"
+              : "Disattiva filtro distanza"
+          }}
         </button>
       </div>
     </form>
@@ -173,11 +179,20 @@ const {
   setTagsFilter,
 } = usePosts();
 
-const radius = ref(10); // default raggio in km
-
+const radius = ref(100); // default raggio in km
 function setCurrentLocation() {
+  if (state.currentLocation) {
+    // Disattiva solo la posizione e il filtro distanza
+    state.currentLocation = null;
+    setDistanceFilter(null);
+    return;
+  }
   if (navigator.geolocation) {
     navigator.geolocation.getCurrentPosition((pos) => {
+      state.currentLocation = {
+        lat: pos.coords.latitude,
+        lng: pos.coords.longitude,
+      };
       setDistanceFilter({
         lat: pos.coords.latitude,
         lng: pos.coords.longitude,
@@ -186,6 +201,16 @@ function setCurrentLocation() {
     });
   } else {
     alert("Geolocalizzazione non supportata");
+  }
+}
+
+function updateRadius() {
+  if (state.currentLocation) {
+    setDistanceFilter({
+      lat: state.currentLocation.lat,
+      lng: state.currentLocation.lng,
+      radius: radius.value,
+    });
   }
 }
 

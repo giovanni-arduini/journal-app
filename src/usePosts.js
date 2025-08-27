@@ -113,6 +113,8 @@ const state = reactive({
   activeFilter: null,
   searchText: "",
   moodFilter: null,
+  currentLocation: null, // { lat, lng }
+
   distanceFilter: null, // { lat, lng, radius }
   tagsFilter: [],
 });
@@ -135,57 +137,65 @@ function getDistance(lat1, lng1, lat2, lng2) {
 const filteredPosts = computed(() => {
   let posts = state.postsList;
 
-  // Filtro per testo
-  if (state.searchText) {
-    const txt = state.searchText.toLowerCase();
-    posts = posts.filter(
-      (p) =>
-        (p.name && p.name.toLowerCase().includes(txt)) ||
-        (p.description && p.description.toLowerCase().includes(txt))
-    );
-  }
-
-  // Filtro per stato d'animo
-  if (state.moodFilter) {
-    posts = posts.filter((p) => p.mood === state.moodFilter);
-  }
-
-  // // Filtro per distanza: solo se posizione e raggio sono validi
-  // const df = state.distanceFilter;
-  // const hasValidDistance =
-  //   df &&
-  //   typeof df.lat === "number" &&
-  //   typeof df.lng === "number" &&
-  //   typeof df.radius === "number" &&
-  //   !isNaN(df.lat) &&
-  //   !isNaN(df.lng) &&
-  //   !isNaN(df.radius);
-
-  // if (hasValidDistance) {
-  //   posts = posts.filter((p) => {
-  //     const geo = p.location?.geo;
-  //     if (!geo?.lat || !geo?.lng) return false;
-  //     const dist = getDistance(df.lat, df.lng, geo.lat, geo.lng);
-  //     return dist <= df.radius;
-  //   });
+  // // Filtro per testo
+  // if (state.searchText) {
+  //   const txt = state.searchText.toLowerCase();
+  //   posts = posts.filter(
+  //     (p) =>
+  //       (p.name && p.name.toLowerCase().includes(txt)) ||
+  //       (p.description && p.description.toLowerCase().includes(txt))
+  //   );
   // }
 
-  // Filtro per tags
-  if (state.tagsFilter && state.tagsFilter.length > 0) {
-    posts = posts.filter(
-      (p) => p.tags && p.tags.some((tag) => state.tagsFilter.includes(tag))
-    );
+  // // Filtro per stato d'animo
+  // if (state.moodFilter) {
+  //   posts = posts.filter((p) => p.mood === state.moodFilter);
+  // }
+
+  // Filtro per distanza: solo se posizione e raggio sono validi
+  const df = state.distanceFilter;
+  const hasValidDistance =
+    df &&
+    typeof df.lat === "number" &&
+    typeof df.lng === "number" &&
+    typeof df.radius === "number" &&
+    !isNaN(df.lat) &&
+    !isNaN(df.lng) &&
+    !isNaN(df.radius);
+
+  if (hasValidDistance) {
+    posts = posts.filter((p) => {
+      const geo = p.location?.geo;
+      if (!geo?.lat || !geo?.lng) return false;
+      const dist = getDistance(df.lat, df.lng, geo.lat, geo.lng);
+      console.log(`Post: ${p.name}, distanza: ${dist}, raggio: ${df.radius}`);
+      return dist <= df.radius;
+    });
   }
 
-  // Filtro per sezione (special, current, folderId)
-  if (state.activeFilter === "special") posts = posts.filter((f) => f.special);
-  else if (typeof state.activeFilter === "number")
-    posts = posts.filter((f) => f.folderId === state.activeFilter);
-  else if (state.activeFilter === "current") {
-    const currentYear = new Date().getFullYear();
-    posts = posts.filter((f) => new Date(f.date).getFullYear() === currentYear);
-  }
+  console.log(
+    "Filtro distanza attivo?",
+    hasValidDistance,
+    state.distanceFilter
+  );
 
+  // // Filtro per tags
+  // if (state.tagsFilter && state.tagsFilter.length > 0) {
+  //   posts = posts.filter(
+  //     (p) => p.tags && p.tags.some((tag) => state.tagsFilter.includes(tag))
+  //   );
+  // }
+
+  // // Filtro per sezione (special, current, folderId)
+  // if (state.activeFilter === "special") posts = posts.filter((f) => f.special);
+  // else if (typeof state.activeFilter === "number")
+  //   posts = posts.filter((f) => f.folderId === state.activeFilter);
+  // else if (state.activeFilter === "current") {
+  //   const currentYear = new Date().getFullYear();
+  //   posts = posts.filter((f) => new Date(f.date).getFullYear() === currentYear);
+  // }
+
+  console.log("Risultato finale:", posts);
   return posts;
 });
 
@@ -196,9 +206,14 @@ function setSearchText(text) {
 function setMoodFilter(mood) {
   state.moodFilter = mood;
 }
-function setDistanceFilter({ lat, lng, radius }) {
-  state.distanceFilter = { lat, lng, radius };
+function setDistanceFilter(filter) {
+  if (!filter) {
+    state.distanceFilter = null;
+  } else {
+    state.distanceFilter = filter;
+  }
 }
+w;
 function setTagsFilter(tags) {
   state.tagsFilter = tags;
 }
