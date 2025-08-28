@@ -36,6 +36,12 @@ function getStickerStyle(index) {
   const angle = (Math.random() - 0.5) * 16;
   return `transform: rotate(${angle}deg);`;
 }
+
+function getStickerStyle(index) {
+  // Rotazione tra -8 e +8 gradi, alternata
+  const angle = (Math.random() - 0.5) * 16;
+  return `transform: rotate(${angle}deg);`;
+}
 </script>
 
 <template>
@@ -134,6 +140,30 @@ function getStickerStyle(index) {
                 Nessun media disponibile
               </div>
             </template>
+            <template v-if="post.media && post.media.length">
+              <template v-for="mediaItem in post.media" :key="mediaItem._id">
+                <img
+                  v-if="mediaItem.type === 'photo'"
+                  :src="mediaItem.url"
+                  alt="immagine"
+                  class="object-cover w-full h-full mb-2"
+                />
+                <video
+                  v-else-if="mediaItem.type === 'video'"
+                  :src="mediaItem.url"
+                  :poster="mediaItem.videoPreview"
+                  controls
+                  class="object-cover w-full h-full mb-2"
+                ></video>
+              </template>
+            </template>
+            <template v-else>
+              <div
+                class="w-full h-full flex items-center justify-center text-gray-400"
+              >
+                Nessun media disponibile
+              </div>
+            </template>
           </figure>
           <div class="w-full px-4 pt-3 pb-2 bg-white rounded-b-lg text-center">
             <h1 class="text-lg font-bold text-gray-800">{{ post.name }}</h1>
@@ -189,6 +219,9 @@ function getStickerStyle(index) {
 </template>
 
 <style scoped>
+.sticker-tag {
+  border: 2px solid #fff;
+  box-shadow: 1px 1px 1px rgba(0, 0, 0, 0.12);
 .sticker-tag {
   border: 2px solid #fff;
   box-shadow: 1px 1px 1px rgba(0, 0, 0, 0.12);
