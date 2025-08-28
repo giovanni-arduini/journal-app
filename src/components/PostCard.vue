@@ -222,48 +222,49 @@ function getStickerStyle(index) {
 .sticker-tag {
   border: 2px solid #fff;
   box-shadow: 1px 1px 1px rgba(0, 0, 0, 0.12);
-.sticker-tag {
-  border: 2px solid #fff;
-  box-shadow: 1px 1px 1px rgba(0, 0, 0, 0.12);
-}
-/* Puntina: movimento verso l'alto + fade */
-.pin-move-enter-active,
-.pin-move-leave-active {
-  transition: opacity 0.4s, transform 0.4s;
-}
-.pin-move-enter-from,
-.pin-move-leave-to {
-  opacity: 0;
-  transform: translateY(-40px);
-}
-.pin-move-enter-to,
-.pin-move-leave-from {
-  opacity: 1;
-  transform: translateY(0);
-}
+  .sticker-tag {
+    border: 2px solid #fff;
+    box-shadow: 1px 1px 1px rgba(0, 0, 0, 0.12);
+  }
+  /* Puntina: movimento verso l'alto + fade */
+  .pin-move-enter-active,
+  .pin-move-leave-active {
+    transition: opacity 0.4s, transform 0.4s;
+  }
+  .pin-move-enter-from,
+  .pin-move-leave-to {
+    opacity: 0;
+    transform: translateY(-40px);
+  }
+  .pin-move-enter-to,
+  .pin-move-leave-from {
+    opacity: 1;
+    transform: translateY(0);
+  }
 
-/* Scotch: movimento diagonale + fade */
-.scotch-move-enter-active,
-.scotch-move-leave-active {
-  transition: opacity 0.4s, transform 0.4s;
-}
-.scotch-move-enter-from,
-.scotch-move-leave-to {
-  opacity: 0;
-}
-.scotch-left.scotch-move-enter-from,
-.scotch-left.scotch-move-leave-to {
-  transform: translate(-40px, -40px);
-}
-.scotch-right.scotch-move-enter-from,
-.scotch-right.scotch-move-leave-to {
-  transform: translate(40px, -40px);
-}
-.scotch-left.scotch-move-enter-to,
-.scotch-left.scotch-move-leave-from,
-.scotch-right.scotch-move-enter-to,
-.scotch-right.scotch-move-leave-from {
-  transform: translate(0, 0);
-  opacity: 1;
+  /* Scotch: movimento diagonale + fade */
+  .scotch-move-enter-active,
+  .scotch-move-leave-active {
+    transition: opacity 0.4s, transform 0.4s;
+  }
+  .scotch-move-enter-from,
+  .scotch-move-leave-to {
+    opacity: 0;
+  }
+  .scotch-left.scotch-move-enter-from,
+  .scotch-left.scotch-move-leave-to {
+    transform: translate(-40px, -40px);
+  }
+  .scotch-right.scotch-move-enter-from,
+  .scotch-right.scotch-move-leave-to {
+    transform: translate(40px, -40px);
+  }
+  .scotch-left.scotch-move-enter-to,
+  .scotch-left.scotch-move-leave-from,
+  .scotch-right.scotch-move-enter-to,
+  .scotch-right.scotch-move-leave-from {
+    transform: translate(0, 0);
+    opacity: 1;
+  }
 }
 </style>
