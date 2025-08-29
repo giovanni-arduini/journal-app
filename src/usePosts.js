@@ -16,13 +16,14 @@ const state = reactive({
   postsList: [],
   showDetail: false,
 
+  // Filtri vari
   activeFilter: null,
   searchText: "",
   moodFilter: null,
-  currentLocation: null, // { lat, lng }
-
-  distanceFilter: null, // { lat, lng, radius }
+  currentLocation: null,
+  distanceFilter: null,
   tagsFilter: [],
+  sortBy: "date",
 });
 
 // Funzione per calcolare la distanza tra due punti (Haversine)
@@ -124,15 +125,42 @@ function setTagsFilter(tags) {
   state.tagsFilter = tags;
 }
 
-const activeSectionName = computed(() => {
-  if (state.activeFilter === "special") return "Preferiti";
-  if (state.activeFilter === "current") return "Anno corrente";
-  if (typeof state.activeFilter === "number") {
-    const folder = folderList.value.find((f) => f.id === state.activeFilter);
-    return folder ? folder.name : "";
+const sortedPosts = computed(() => {
+  let posts = filteredPosts.value.slice();
+
+  if (state.sortBy === "distance" && state.distanceFilter) {
+    posts.sort((a, b) => {
+      const geoA = a.location?.geo;
+      const geoB = b.location?.geo;
+      const distA = geoA
+        ? getDistance(
+            state.distanceFilter.lat,
+            state.distanceFilter.lng,
+            geoA.lat,
+            geoA.lng
+          )
+        : Infinity;
+      const distB = geoB
+        ? getDistance(
+            state.distanceFilter.lat,
+            state.distanceFilter.lng,
+            geoB.lat,
+            geoB.lng
+          )
+        : Infinity;
+      return distA - distB;
+    });
+  } else if (state.sortBy === "date") {
+    posts.sort((a, b) => new Date(b.date) - new Date(a.date));
+  } else if (state.sortBy === "expense") {
+    posts.sort((a, b) => b.actual_expense - a.actual_expense);
   }
-  return "Tutti i file";
+  return posts;
 });
+
+function setSortBy(value) {
+  state.sortBy = value;
+}
 
 export function usePosts() {
   function setFilter(filter) {
@@ -213,7 +241,6 @@ export function usePosts() {
   return {
     state,
     filteredPosts,
-    activeSectionName,
 
     setFilter,
     loadPosts,
@@ -230,5 +257,8 @@ export function usePosts() {
     setMoodFilter,
     setSearchText,
     setTagsFilter,
+
+    sortedPosts,
+    setSortBy,
   };
 }
