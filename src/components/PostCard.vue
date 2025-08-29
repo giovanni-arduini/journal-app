@@ -20,6 +20,14 @@ function closeDetail() {
   showDetailModal.value = false;
 }
 
+function convertDate(date) {
+  return new Date(date).toLocaleDateString("it-IT", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  });
+}
+
 onMounted(() => {
   decorationType.value = Math.random() < 0.5 ? "scotch" : "pin";
   decorationColor.value = Math.random() < 0.5 ? 1 : 2;
@@ -31,14 +39,7 @@ function flipCard() {
   isFlipped.value = !isFlipped.value;
 }
 
-function getStickerStyle(index) {
-  // Rotazione tra -8 e +8 gradi, alternata
-  const angle = (Math.random() - 0.5) * 16;
-  return `transform: rotate(${angle}deg);`;
-}
-
-function getStickerStyle(index) {
-  // Rotazione tra -8 e +8 gradi, alternata
+function getStickerStyle() {
   const angle = (Math.random() - 0.5) * 16;
   return `transform: rotate(${angle}deg);`;
 }
@@ -69,20 +70,21 @@ function getStickerStyle(index) {
     >
       <!-- Unica Transition per decorazione -->
       <Transition name="scotch-move" mode="out-in">
+        <!-- scotch -->
         <div v-if="!isFlipped && decorationType === 'scotch'" key="scotch">
           <div
-            class="absolute -left-5 top-2 w-24 h-8 rotate-[-45deg] rounded opacity-80 shadow-md z-10 scotch-left"
+            class="absolute -left-5 top-2 w-24 h-8 rotate-[-45deg] rounded shadow-md z-10 scotch-left"
             :class="
               decorationColor === 1
-                ? 'bg-yellow-200'
+                ? 'bg-yellow-200 opacity-80'
                 : 'bg-yellow-800 opacity-10'
             "
           ></div>
           <div
-            class="absolute -right-4 top-2 w-24 h-8 rotate-[45deg] rounded opacity-80 shadow-md z-10 scotch-right"
+            class="absolute -right-4 top-2 w-24 h-8 rotate-[45deg] rounded shadow-md z-10 scotch-right"
             :class="
               decorationColor === 1
-                ? 'bg-yellow-200'
+                ? 'bg-yellow-200 opacity-80'
                 : 'bg-yellow-800 opacity-10'
             "
           ></div>
@@ -96,8 +98,8 @@ function getStickerStyle(index) {
           class="absolute left-1/2 -translate-x-1/2 top-1 z-10 flex flex-col items-center"
         >
           <div
-            class="w-7 h-7 bg-red-600 rounded-full border-gray-200 border-2 shadow-md"
-            :class="decorationColor === 1 ? 'bg-red-600' : 'bg-blue-600'"
+            class="w-7 h-7 rounded-full border-gray-200 border-2 shadow-md"
+            :class="decorationColor === 2 ? 'bg-red-600' : 'bg-blue-600'"
           ></div>
         </div>
       </Transition>
@@ -119,7 +121,7 @@ function getStickerStyle(index) {
             <template v-if="post.media && post.media.length">
               <template v-for="mediaItem in post.media" :key="mediaItem._id">
                 <img
-                  v-if="mediaItem.type === 'photo'"
+                  v-if="mediaItem.type === 'image'"
                   :src="mediaItem.url"
                   alt="immagine"
                   class="object-cover w-full h-full mb-2"
@@ -167,7 +169,7 @@ function getStickerStyle(index) {
           </figure>
           <div class="w-full px-4 pt-3 pb-2 bg-white rounded-b-lg text-center">
             <h1 class="text-lg font-bold text-gray-800">{{ post.name }}</h1>
-            <p class="text-sm text-gray-500">{{ post.date }}</p>
+            <p class="text-sm text-gray-500">{{ convertDate(post.date) }}</p>
           </div>
           <button
             class="absolute bottom-4 right-4 text-2xl rotate-[20deg]"
@@ -222,49 +224,40 @@ function getStickerStyle(index) {
 .sticker-tag {
   border: 2px solid #fff;
   box-shadow: 1px 1px 1px rgba(0, 0, 0, 0.12);
-  .sticker-tag {
-    border: 2px solid #fff;
-    box-shadow: 1px 1px 1px rgba(0, 0, 0, 0.12);
-  }
-  /* Puntina: movimento verso l'alto + fade */
-  .pin-move-enter-active,
-  .pin-move-leave-active {
-    transition: opacity 0.4s, transform 0.4s;
-  }
-  .pin-move-enter-from,
-  .pin-move-leave-to {
-    opacity: 0;
-    transform: translateY(-40px);
-  }
-  .pin-move-enter-to,
-  .pin-move-leave-from {
-    opacity: 1;
-    transform: translateY(0);
-  }
+}
+.pin-move-enter-from,
+.pin-move-leave-to {
+  opacity: 0;
+  transform: translateY(-40px);
+}
+.pin-move-enter-to,
+.pin-move-leave-from {
+  opacity: 1;
+  transform: translateY(0);
+}
 
-  /* Scotch: movimento diagonale + fade */
-  .scotch-move-enter-active,
-  .scotch-move-leave-active {
-    transition: opacity 0.4s, transform 0.4s;
-  }
-  .scotch-move-enter-from,
-  .scotch-move-leave-to {
-    opacity: 0;
-  }
-  .scotch-left.scotch-move-enter-from,
-  .scotch-left.scotch-move-leave-to {
-    transform: translate(-40px, -40px);
-  }
-  .scotch-right.scotch-move-enter-from,
-  .scotch-right.scotch-move-leave-to {
-    transform: translate(40px, -40px);
-  }
-  .scotch-left.scotch-move-enter-to,
-  .scotch-left.scotch-move-leave-from,
-  .scotch-right.scotch-move-enter-to,
-  .scotch-right.scotch-move-leave-from {
-    transform: translate(0, 0);
-    opacity: 1;
-  }
+/* Scotch: movimento diagonale + fade */
+.scotch-move-enter-active,
+.scotch-move-leave-active {
+  transition: opacity 0.4s, transform 0.4s;
+}
+.scotch-move-enter-from,
+.scotch-move-leave-to {
+  opacity: 0;
+}
+.scotch-left.scotch-move-enter-from,
+.scotch-left.scotch-move-leave-to {
+  transform: translate(-40px, -40px);
+}
+.scotch-right.scotch-move-enter-from,
+.scotch-right.scotch-move-leave-to {
+  transform: translate(40px, -40px);
+}
+.scotch-left.scotch-move-enter-to,
+.scotch-left.scotch-move-leave-from,
+.scotch-right.scotch-move-enter-to,
+.scotch-right.scotch-move-leave-from {
+  transform: translate(0, 0);
+  opacity: 1;
 }
 </style>
