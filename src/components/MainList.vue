@@ -1,4 +1,5 @@
 <script setup>
+import { watch } from "vue";
 // const fileDetails = ref({});
 
 // async function handleShowDetail(id) {
@@ -21,28 +22,28 @@ import PostCard from "./PostCard.vue";
 // });
 
 import { usePosts } from "@/usePosts";
-const { filteredPosts } = usePosts();
+const { processedPosts, state } = usePosts();
 </script>
 
 <template>
   <div class="py-8 px-10">
-    <h1 class="text-2xl font-bold text-center mb-8">Le mie tappe</h1>
+    <h1 class="text-2xl font-bold text-center mb-8">Il mio viaggio</h1>
     <div
       :class="[
         'grid gap-8',
-        filteredPosts.length === 1
+        processedPosts.length === 1
           ? 'grid-cols-1'
-          : filteredPosts.length === 2
+          : processedPosts.length === 2
           ? 'grid-cols-2'
-          : filteredPosts.length === 3
+          : processedPosts.length === 3
           ? 'grid-cols-3'
           : 'grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4',
       ]"
     >
-      <PostCard v-for="post in filteredPosts" :key="post.id" :post="post" />
+      <PostCard v-for="post in processedPosts" :key="post.id" :post="post" />
     </div>
     <div
-      v-if="filteredPosts.length === 0"
+      v-if="processedPosts.length === 0"
       class="text-center mt-12 text-gray-500"
     >
       Ancora nessuna tappa del tuo viaggio...
