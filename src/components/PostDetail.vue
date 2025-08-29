@@ -13,29 +13,35 @@
       </button>
       <h2 class="text-3xl font-bold mb-4">{{ post.name }}</h2>
       <div class="mb-4">
-  <template v-if="post.media && post.media.length">
-    <template v-for="mediaItem in post.media" :key="mediaItem._id">
-      <img
-        v-if="mediaItem.type === 'photo'"
-        :src="mediaItem.url"
-        alt="Foto"
-        class="w-full rounded-lg mb-2"
-      />
-      <video
-        v-else-if="mediaItem.type === 'video'"
-        :src="mediaItem.url"
-        :poster="mediaItem.videoPreview"
-        controls
-        class="w-full rounded-lg mb-2"
-      ></video>
-    </template>
-  </template>
-  <template v-else>
-    <div class="w-full flex items-center justify-center text-gray-400">
-      Nessun media disponibile
-    </div>
-  </template>
-</div>
+        <template v-if="post.media && post.media.length">
+          <template v-for="mediaItem in post.media" :key="mediaItem._id">
+            <div class="w-full flex justify-center items-center">
+              <div style="height: 50vh; aspect-ratio: 4/3; overflow: hidden">
+                <img
+                  v-if="mediaItem.type === 'image'"
+                  :src="mediaItem.url"
+                  alt="Foto"
+                  class="w-full object-cover rounded-lg"
+                  style="aspect-ratio: 4/3"
+                />
+                <video
+                  v-else-if="mediaItem.type === 'video'"
+                  :src="mediaItem.url"
+                  :poster="mediaItem.videoPreview"
+                  controls
+                  class="w-full object-cover rounded-lg"
+                  style="aspect-ratio: 16/9"
+                ></video>
+              </div>
+            </div>
+          </template>
+        </template>
+        <template v-else>
+          <div class="w-full flex items-center justify-center text-gray-400">
+            Nessun media disponibile
+          </div>
+        </template>
+      </div>
       <div class="mb-2 text-gray-700">
         <strong>Luogo:</strong> {{ post.location.manual }}
       </div>
