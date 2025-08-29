@@ -12,6 +12,7 @@ export function getTagColor(tag) {
   const hue = Math.abs(hash) % 360;
   return `hsl(${hue},70%,80%)`;
 }
+
 const state = reactive({
   postsList: [],
   showDetail: false,
@@ -26,7 +27,7 @@ const state = reactive({
   sortBy: "date",
 });
 
-// Funzione per calcolare la distanza tra due punti (Haversine)
+// Calcolo distanze
 function getDistance(lat1, lng1, lat2, lng2) {
   const R = 6371; // km
   const dLat = ((lat2 - lat1) * Math.PI) / 180;
@@ -41,10 +42,10 @@ function getDistance(lat1, lng1, lat2, lng2) {
   return R * c;
 }
 
-const filteredPosts = computed(() => {
-  let posts = state.postsList;
+const processedPosts = computed(() => {
+  let posts = state.postsList.slice();
 
-  // Filtro per testo
+  // Filtri vari
   if (state.searchText) {
     const txt = state.searchText.toLowerCase();
     posts = posts.filter(
@@ -54,12 +55,17 @@ const filteredPosts = computed(() => {
     );
   }
 
-  // Filtro per stato d'animo
   if (state.moodFilter) {
     posts = posts.filter((p) => p.mood === state.moodFilter);
   }
 
-  // Filtro per distanza: solo se posizione e raggio sono validi
+  if (state.tagsFilter && state.tagsFilter.length > 0) {
+    posts = posts.filter(
+      (p) => p.tags && p.tags.some((tag) => state.tagsFilter.includes(tag))
+    );
+  }
+
+  // Filtro speciale per distanza
   const df = state.distanceFilter;
   const hasValidDistance =
     df &&
@@ -75,34 +81,29 @@ const filteredPosts = computed(() => {
       const geo = p.location?.geo;
       if (!geo?.lat || !geo?.lng) return false;
       const dist = getDistance(df.lat, df.lng, geo.lat, geo.lng);
-      console.log(`Post: ${p.name}, distanza: ${dist}, raggio: ${df.radius}`);
       return dist <= df.radius;
     });
   }
 
-  console.log(
-    "Filtro distanza attivo?",
-    hasValidDistance,
-    state.distanceFilter
-  );
-
-  // Filtro per tags
-  if (state.tagsFilter && state.tagsFilter.length > 0) {
-    posts = posts.filter(
-      (p) => p.tags && p.tags.some((tag) => state.tagsFilter.includes(tag))
-    );
+  // Sorting
+  if (state.sortBy === "distance" && hasValidDistance) {
+    posts.sort((a, b) => {
+      const geoA = a.location?.geo;
+      const geoB = b.location?.geo;
+      const distA = geoA
+        ? getDistance(df.lat, df.lng, geoA.lat, geoA.lng)
+        : Infinity;
+      const distB = geoB
+        ? getDistance(df.lat, df.lng, geoB.lat, geoB.lng)
+        : Infinity;
+      return distA - distB;
+    });
+  } else if (state.sortBy === "date") {
+    posts.sort((a, b) => new Date(b.date) - new Date(a.date));
+  } else if (state.sortBy === "expense") {
+    posts.sort((a, b) => b.actual_expense - a.actual_expense);
   }
 
-  // Filtro per sezione (special, current, folderId)
-  if (state.activeFilter === "special") posts = posts.filter((f) => f.special);
-  else if (typeof state.activeFilter === "number")
-    posts = posts.filter((f) => f.folderId === state.activeFilter);
-  else if (state.activeFilter === "current") {
-    const currentYear = new Date().getFullYear();
-    posts = posts.filter((f) => new Date(f.date).getFullYear() === currentYear);
-  }
-
-  console.log("Risultato finale:", posts);
   return posts;
 });
 
@@ -124,39 +125,6 @@ function setDistanceFilter(filter) {
 function setTagsFilter(tags) {
   state.tagsFilter = tags;
 }
-
-const sortedPosts = computed(() => {
-  let posts = filteredPosts.value.slice();
-
-  if (state.sortBy === "distance" && state.distanceFilter) {
-    posts.sort((a, b) => {
-      const geoA = a.location?.geo;
-      const geoB = b.location?.geo;
-      const distA = geoA
-        ? getDistance(
-            state.distanceFilter.lat,
-            state.distanceFilter.lng,
-            geoA.lat,
-            geoA.lng
-          )
-        : Infinity;
-      const distB = geoB
-        ? getDistance(
-            state.distanceFilter.lat,
-            state.distanceFilter.lng,
-            geoB.lat,
-            geoB.lng
-          )
-        : Infinity;
-      return distA - distB;
-    });
-  } else if (state.sortBy === "date") {
-    posts.sort((a, b) => new Date(b.date) - new Date(a.date));
-  } else if (state.sortBy === "expense") {
-    posts.sort((a, b) => b.actual_expense - a.actual_expense);
-  }
-  return posts;
-});
 
 function setSortBy(value) {
   state.sortBy = value;
@@ -184,7 +152,6 @@ export function usePosts() {
     try {
       const res = await axios.post(API_URL + "/posts", newPost);
       await loadPosts();
-      state.postsList.push(res.data);
     } catch (err) {
       console.error("Errore creazione post:", err);
     }
@@ -222,25 +189,13 @@ export function usePosts() {
     }
   }
 
-  console.log(filteredPosts.value);
-
   function toggleSpecial(postId) {
     const post = state.postsList.find((p) => p.id === postId);
     if (post) updateFile(postId, { special: !post.special });
   }
 
-  // watch per osservare ogni cambiamento
-  // watch(
-  //   () => state.postsList,
-  //   ([newPost]) => {
-  //     console.log("filesList cambiata:", newPost);
-  //   },
-  //   { deep: true }
-  // );
-
   return {
     state,
-    filteredPosts,
 
     setFilter,
     loadPosts,
@@ -258,7 +213,7 @@ export function usePosts() {
     setSearchText,
     setTagsFilter,
 
-    sortedPosts,
+    processedPosts,
     setSortBy,
   };
 }
