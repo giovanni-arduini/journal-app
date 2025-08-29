@@ -1,17 +1,19 @@
 <script setup>
-import { ref, onMounted } from "vue";
-import { usePosts, getTagColor } from "@/usePosts";
+import { ref, onMounted, computed } from "vue";
+import { getTagColor } from "@/usePosts";
 import PostDetail from "./PostDetail.vue";
 
-const props = defineProps({ post: { type: Object, required: true } });
-const post = props.post;
+const props = defineProps({
+  post: { type: Object, required: true },
+});
 
 const decorationType = ref("");
 const decorationColor = ref(null);
 const rotation = ref(0);
 const isFlipped = ref(false);
-const tags = post.tags;
 const showDetailModal = ref(false);
+
+const tags = computed(() => props.post.tags || []);
 
 function showDetail() {
   showDetailModal.value = true;
@@ -31,7 +33,6 @@ function convertDate(date) {
 onMounted(() => {
   decorationType.value = Math.random() < 0.5 ? "scotch" : "pin";
   decorationColor.value = Math.random() < 0.5 ? 1 : 2;
-
   rotation.value = Math.random() * 15 - 5;
 });
 
@@ -48,7 +49,7 @@ function getStickerStyle() {
 <template>
   <PostDetail
     v-if="showDetailModal"
-    :post="post"
+    :post="props.post"
     :visible="showDetailModal"
     @close="closeDetail"
   />
@@ -68,9 +69,8 @@ function getStickerStyle() {
       }"
       style="transform-style: preserve-3d"
     >
-      <!-- Unica Transition per decorazione -->
+      <!-- Decorazioni scotch/pin -->
       <Transition name="scotch-move" mode="out-in">
-        <!-- scotch -->
         <div v-if="!isFlipped && decorationType === 'scotch'" key="scotch">
           <div
             class="absolute -left-5 top-2 w-24 h-8 rotate-[-45deg] rounded shadow-md z-10 scotch-left"
@@ -90,7 +90,7 @@ function getStickerStyle() {
           ></div>
         </div>
       </Transition>
-      <!-- Puntina -->
+
       <Transition name="pin-move" mode="out-in">
         <div
           v-if="!isFlipped && decorationType === 'pin'"
@@ -118,8 +118,11 @@ function getStickerStyle() {
           <figure
             class="w-full h-64 flex items-center justify-center overflow-hidden rounded-t-lg p-2"
           >
-            <template v-if="post.media && post.media.length">
-              <template v-for="mediaItem in post.media" :key="mediaItem._id">
+            <template v-if="props.post.media && props.post.media.length">
+              <template
+                v-for="mediaItem in props.post.media"
+                :key="mediaItem._id"
+              >
                 <img
                   v-if="mediaItem.type === 'image'"
                   :src="mediaItem.url"
@@ -142,42 +145,23 @@ function getStickerStyle() {
                 Nessun media disponibile
               </div>
             </template>
-            <template v-if="post.media && post.media.length">
-              <template v-for="mediaItem in post.media" :key="mediaItem._id">
-                <img
-                  v-if="mediaItem.type === 'photo'"
-                  :src="mediaItem.url"
-                  alt="immagine"
-                  class="object-cover w-full h-full mb-2"
-                />
-                <video
-                  v-else-if="mediaItem.type === 'video'"
-                  :src="mediaItem.url"
-                  :poster="mediaItem.videoPreview"
-                  controls
-                  class="object-cover w-full h-full mb-2"
-                ></video>
-              </template>
-            </template>
-            <template v-else>
-              <div
-                class="w-full h-full flex items-center justify-center text-gray-400"
-              >
-                Nessun media disponibile
-              </div>
-            </template>
           </figure>
           <div class="w-full px-4 pt-3 pb-2 bg-white rounded-b-lg text-center">
-            <h1 class="text-lg font-bold text-gray-800">{{ post.name }}</h1>
-            <p class="text-sm text-gray-500">{{ convertDate(post.date) }}</p>
+            <h1 class="text-lg font-bold text-gray-800">
+              {{ props.post.name }}
+            </h1>
+            <p class="text-sm text-gray-500">
+              {{ convertDate(props.post.date) }}
+            </p>
           </div>
           <button
             class="absolute bottom-4 right-4 text-2xl rotate-[20deg]"
             style="color: orange"
           >
-            {{ post.special ? "★" : "☆" }}
+            {{ props.post.special ? "★" : "☆" }}
           </button>
         </div>
+
         <!-- Back -->
         <div
           class="absolute inset-0 flex flex-col items-center bg-white rounded-lg shadow-lg pb-6 pt-4 mx-auto rotate-y-180"
@@ -188,9 +172,7 @@ function getStickerStyle() {
           >
             <div class="w-full px-4 pt-3 pb-2 text-center">
               <h2 class="text-lg font-bold text-gray-800">La mia tappa</h2>
-              <p class="text-sm text-gray-600">
-                {{ post.description }}
-              </p>
+              <p class="text-sm text-gray-600">{{ props.post.description }}</p>
               <button
                 class="mt-4 px-4 py-2 bg-blue-500 text-white rounded shadow"
                 @click.stop="showDetail"
@@ -199,17 +181,18 @@ function getStickerStyle() {
               </button>
             </div>
           </div>
-          <!-- TAGS: sticker style, fuori dalla zona descrizione -->
+
+          <!-- TAGS: sticker style -->
           <div
             class="w-full px-4 pt-2 pb-2 text-center flex flex-wrap justify-center items-center"
           >
             <div
-              v-for="(tag, idx) in tags"
+              v-for="tag in tags"
               :key="tag"
               class="sticker-tag inline-block px-2 py-1 mr-2 mb-2 rounded text-xs font-semibold shadow"
-              :style="`${getStickerStyle(idx)} background-color: ${getTagColor(
+              :style="`background-color: ${getTagColor(
                 tag
-              )};`"
+              )}; ${getStickerStyle()}`"
             >
               {{ tag }}
             </div>
@@ -235,8 +218,6 @@ function getStickerStyle() {
   opacity: 1;
   transform: translateY(0);
 }
-
-/* Scotch: movimento diagonale + fade */
 .scotch-move-enter-active,
 .scotch-move-leave-active {
   transition: opacity 0.4s, transform 0.4s;
