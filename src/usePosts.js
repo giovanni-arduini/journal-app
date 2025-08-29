@@ -157,15 +157,17 @@ export function usePosts() {
     }
   }
 
-  async function updatePost(id, updatedFields) {
+  async function updatePost(postOrId, updatedFields) {
     try {
-      const res = await axios.put(`${API_URL}/posts/${id}`, updatedFields);
-      const index = state.postsList.findIndex((p) => p.id === id);
-      await loadFiles();
+      const postId =
+        typeof postOrId === "object" && postOrId !== null
+          ? String(postOrId._id)
+          : String(postOrId);
 
-      if (index !== -1) state.postsList[index] = res.data;
+      await axios.put(`${API_URL}/posts/${postId}`, updatedFields);
+      await loadPosts();
     } catch (err) {
-      console.error("Errore aggiornamento file:", err);
+      console.error("Errore aggiornamento post:", err);
     }
   }
 
@@ -183,15 +185,15 @@ export function usePosts() {
       await axios.delete(`${API_URL}/posts/${id}`);
       await loadPosts();
 
-      state.postsList = state.postsList.filter((p) => p.id !== id);
+      state.postsList = state.postsList.filter((p) => p._id !== id);
     } catch (err) {
       console.error("Errore eliminazione post:", err);
     }
   }
 
   function toggleSpecial(postId) {
-    const post = state.postsList.find((p) => p.id === postId);
-    if (post) updateFile(postId, { special: !post.special });
+    const post = state.postsList.find((p) => p._id === postId);
+    if (post) updatePost(postId, { special: !post.special });
   }
 
   return {
