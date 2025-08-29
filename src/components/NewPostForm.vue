@@ -99,11 +99,18 @@ const submitPost = async () => {
   const postData = {
     name: name.value,
     description: description.value,
+    mood: mood.value,
+    tags: tags.value,
+    positive_reflection: positive_reflection.value,
+    negative_reflection: negative_reflection.value,
+    physical_effort: physical_effort.value,
+    economic_effort: economic_effort.value,
+    actual_expense: actual_expense.value,
+    location: location.value,
     media: [
       {
         type: mediaType,
         url: publicUrl,
-        // videoPreview: null // verrà aggiunto dal backend/Cloud Function se è un video
       },
     ],
   };
