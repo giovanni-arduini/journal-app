@@ -3,7 +3,6 @@ import { ref, watch } from "vue";
 
 // sezioni del form
 const currentStep = ref(1);
-const totalSteps = 4;
 
 // dati del form
 const name = ref("");
@@ -12,6 +11,7 @@ const mood = ref("");
 const tags = ref([]);
 const tagsInput = ref("");
 const file = ref(null);
+const date = ref(new Date().toISOString().slice(0, 10));
 const location = ref({ manual: "", geo: null });
 const uploading = ref(false);
 const positive_reflection = ref("");
@@ -70,32 +70,6 @@ function getGeoLocation() {
   );
 }
 
-// function validateForm() {
-//   errors.value = {};
-//   generalError.value = ""; // reset
-
-//   if (!name.value.trim()) errors.value.name = "Il titolo è obbligatorio.";
-//   if (!mood.value.trim()) errors.value.mood = "Il mood è obbligatorio.";
-//   if (!description.value.trim())
-//     errors.value.description = "La descrizione è obbligatoria.";
-//   if (!physical_effort.value)
-//     errors.value.physical_effort = "Sforzo fisico obbligatorio.";
-//   if (!economic_effort.value)
-//     errors.value.economic_effort = "Sforzo economico obbligatorio.";
-//   if (
-//     actual_expense.value === null ||
-//     actual_expense.value === "" ||
-//     isNaN(actual_expense.value)
-//   )
-//     errors.value.actual_expense = "Spesa effettiva obbligatoria.";
-//   if (!file.value) errors.value.file = "Immagine o video obbligatori.";
-//   if (Object.keys(errors.value).length > 0) {
-//     generalError.value = "Riempire tutti gli spazi contrassegnati da asterisco";
-//     return false;
-//   }
-//   return true;
-// }
-
 function validateStep(step) {
   errors.value = {};
   generalError.value = "";
@@ -104,6 +78,7 @@ function validateStep(step) {
     if (!name.value.trim()) errors.value.name = true;
     if (!mood.value.trim()) errors.value.mood = true;
     if (!description.value.trim()) errors.value.description = true;
+    if (!date.value) errors.value.date = true;
   }
   if (step === 2) {
     if (!physical_effort.value) errors.value.physical_effort = true;
@@ -171,6 +146,7 @@ const submitPost = async () => {
     description: description.value,
     mood: mood.value,
     tags: tags.value,
+    date: date.value,
     positive_reflection: positive_reflection.value,
     negative_reflection: negative_reflection.value,
     physical_effort: physical_effort.value,
@@ -285,6 +261,12 @@ function getPreviewUrl(file) {
                   />
                 </label>
               </div>
+              <label class="block">
+                <span class="text-blue-700 font-medium">
+                  Data: <span class="text-red-500">*</span>
+                </span>
+                <input type="date" v-model="date" class="input-field" />
+              </label>
             </fieldset>
           </div>
           <div
@@ -521,13 +503,6 @@ function getPreviewUrl(file) {
   </div>
 </template>
 
-<!-- <button
-  type="button"
-  @click="resetForm"
-  class="px-6 py-2 bg-gray-200 text-gray-700 rounded-lg shadow hover:bg-gray-300 transition"
->
-  Reset
-</button> -->
 <style scoped>
 .input-field {
   width: 100%;
