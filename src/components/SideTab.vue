@@ -143,7 +143,7 @@ function updateRadius() {
         class="my-10 bg-green-200 p-5 rounded-xl hover:bg-green-300 shadow"
         @click="showCreationModal = true"
       >
-        Aggiungi un ricordo!
+        Aggiungi una tappa!
       </button>
     </div>
     <form class="mb-8 space-y-4" @submit.prevent>

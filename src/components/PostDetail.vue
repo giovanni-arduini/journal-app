@@ -1,6 +1,12 @@
 <template>
+  <EditPostForm
+    v-if="showEditPost"
+    :post="post"
+    @close="showEditPost = false"
+    @updated="handlePostUpdated"
+  />
   <div
-    v-if="visible"
+    v-else
     class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-70"
     @click.self="close"
   >
@@ -78,13 +84,24 @@
           {{ tag }}
         </span>
       </div>
+      <div>
+        <button @click="showEditPost = true">Modifica</button>
+      </div>
     </div>
   </div>
 </template>
 
 <script setup>
 import { ref, watch } from "vue";
-import { getTagColor } from "@/usePosts";
+import { getTagColor, usePosts } from "@/usePosts";
+import EditPostForm from "./EditPostForm.vue";
+
+const { updatePost } = usePosts();
+
+function handlePostUpdated(updatedPost) {
+  updatePost(updatedPost._id, updatedPost);
+  showEditPost.value = false;
+}
 
 const props = defineProps({
   post: { type: Object, required: true },
@@ -92,6 +109,7 @@ const props = defineProps({
 });
 
 const emit = defineEmits(["close"]);
+const showEditPost = ref(false);
 
 function close() {
   emit("close");

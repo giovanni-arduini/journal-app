@@ -1,28 +1,18 @@
 <script setup>
-import { watch } from "vue";
-// const fileDetails = ref({});
-
-// async function handleShowDetail(id) {
-//   const res = await showFile(id);
-//   state.showDetail = true;
-//   fileDetails.value = res;
-// }
-
-// function hideDetail() {
-//   state.showDetail = false;
-// }
-
 import PostCard from "./PostCard.vue";
-
-// const props = defineProps({
-//   posts: {
-//     type: Array,
-//     required: true,
-//   },
-// });
-
 import { usePosts } from "@/usePosts";
-const { processedPosts, state } = usePosts();
+import { watch } from "vue";
+
+const posts = usePosts();
+
+// Debug: guarda quando cambia
+watch(
+  () => posts.processedPosts,
+  (val) => {
+    console.log("processedPosts aggiornati:", val);
+  },
+  { deep: true, immediate: true }
+);
 </script>
 
 <template>
@@ -31,19 +21,23 @@ const { processedPosts, state } = usePosts();
     <div
       :class="[
         'grid gap-8',
-        processedPosts.length === 1
+        posts.processedPosts.value.length === 1
           ? 'grid-cols-1'
-          : processedPosts.length === 2
+          : posts.processedPosts.value.length === 2
           ? 'grid-cols-2'
-          : processedPosts.length === 3
+          : posts.processedPosts.value.length === 3
           ? 'grid-cols-3'
           : 'grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4',
       ]"
     >
-      <PostCard v-for="post in processedPosts" :key="post.id" :post="post" />
+      <PostCard
+        v-for="post in posts.processedPosts.value"
+        :key="post.id"
+        :post="post"
+      />
     </div>
     <div
-      v-if="processedPosts.length === 0"
+      v-if="posts.processedPosts.value.length === 0"
       class="text-center mt-12 text-gray-500"
     >
       Ancora nessuna tappa del tuo viaggio...
