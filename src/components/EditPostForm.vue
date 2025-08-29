@@ -13,6 +13,7 @@ const name = ref(props.post?.name || "");
 const description = ref(props.post?.description || "");
 const mood = ref(props.post?.mood || "");
 const tags = ref(props.post?.tags ? [...props.post.tags] : []);
+const date = ref(new Date().toISOString().slice(0, 10));
 const positive_reflection = ref(props.post?.positive_reflection || "");
 const negative_reflection = ref(props.post?.negative_reflection || "");
 const physical_effort = ref(props.post?.physical_effort || null);
@@ -54,6 +55,7 @@ async function submitEdit() {
     description: description.value,
     mood: mood.value,
     tags: tags.value,
+    date: date.value,
     positive_reflection: positive_reflection.value,
     negative_reflection: negative_reflection.value,
     physical_effort: physical_effort.value,
@@ -69,7 +71,6 @@ async function submitEdit() {
 
 <template>
   <div
-    v-if="visible"
     class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-70"
     @click.self="emit('close')"
   >
@@ -119,6 +120,10 @@ async function submitEdit() {
         <label>
           Riflessione positiva:
           <textarea v-model="positive_reflection" class="input-field" />
+        </label>
+        <label>
+          Data: <span class="text-red-500">*</span>
+          <input type="date" v-model="date" class="input-field" />
         </label>
         <label>
           Riflessione negativa:
