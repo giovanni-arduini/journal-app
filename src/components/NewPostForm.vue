@@ -15,6 +15,7 @@ const physical_effort = ref(null);
 const economic_effort = ref(null);
 const actual_expense = ref(null);
 
+const generalError = ref("");
 const errors = ref({});
 
 const props = defineProps({
@@ -54,6 +55,8 @@ function getGeoLocation() {
 
 function validateForm() {
   errors.value = {};
+  generalError.value = ""; // reset
+
   if (!name.value.trim()) errors.value.name = "Il titolo è obbligatorio.";
   if (!mood.value.trim()) errors.value.mood = "Il mood è obbligatorio.";
   if (!description.value.trim())
@@ -69,7 +72,11 @@ function validateForm() {
   )
     errors.value.actual_expense = "Spesa effettiva obbligatoria.";
   if (!file.value) errors.value.file = "Immagine o video obbligatori.";
-  return Object.keys(errors.value).length === 0;
+  if (Object.keys(errors.value).length > 0) {
+    generalError.value = "Riempire tutti gli spazi contrassegnati da asterisco";
+    return false;
+  }
+  return true;
 }
 
 watch([name, mood, description, actual_expense, file], () => {
@@ -323,6 +330,12 @@ const submitPost = async () => {
             />
           </label>
         </fieldset>
+        <div
+          v-if="generalError"
+          class="mb-4 text-red-600 font-semibold text-center"
+        >
+          {{ generalError }}
+        </div>
 
         <div class="flex justify-end">
           <button
