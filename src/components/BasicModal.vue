@@ -2,7 +2,8 @@
   <teleport to="body">
     <div
       v-if="open"
-      class="fixed inset-0 z-10 w-full h-full bg-gray-800 bg-opacity-50 flex justify-center items-center absolute"
+      class="fixed inset-0 z-[999] w-full h-full bg-gray-800 bg-opacity-50 flex justify-center items-center absolute"
+      s
     >
       <div class="bg-white flex flex-col rounded-md min-w-[300px] p-4">
         <button class="self-end" type="button" @click="$emit('close')">
