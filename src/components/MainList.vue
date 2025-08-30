@@ -17,7 +17,7 @@ watch(
 
 <template>
   <div
-    class="py-1 px-10 min-h-screen w-full"
+    class="py-1 px-10 w-full mb-6 shadow-xl/30"
     style="
       background-image: url('/images/board.png');
       background-size: 100% 100%;
