@@ -77,7 +77,7 @@ function getStickerStyle() {
             :class="
               decorationColor === 1
                 ? 'bg-yellow-200 opacity-80'
-                : 'bg-yellow-800 opacity-10'
+                : 'bg-gray-800 opacity-20'
             "
           ></div>
           <div
@@ -85,7 +85,7 @@ function getStickerStyle() {
             :class="
               decorationColor === 1
                 ? 'bg-yellow-200 opacity-80'
-                : 'bg-yellow-800 opacity-10'
+                : 'bg-gray-800 opacity-20'
             "
           ></div>
         </div>
@@ -171,8 +171,12 @@ function getStickerStyle() {
             class="w-full h-64 flex flex-col items-center justify-center overflow-hidden rounded-t-lg p-2"
           >
             <div class="w-full px-4 pt-3 pb-2 text-center">
-              <h2 class="text-lg font-bold text-gray-800">La mia tappa</h2>
-              <p class="text-sm text-gray-600">{{ props.post.description }}</p>
+              <h2 class="text-lg font-bold text-gray-800">
+                {{ props.post.description }}
+              </h2>
+              <p class="text-sm text-gray-600">
+                Mi sentivo {{ props.post.mood }}
+              </p>
               <button
                 class="mt-4 px-4 py-2 bg-blue-500 text-white rounded shadow"
                 @click.stop="showDetail"

@@ -44,7 +44,7 @@
   <!-- Overlay e dettaglio post -->
   <div
     v-else
-    class="fixed inset-0 z-40 flex items-center justify-center bg-black bg-opacity-70"
+    class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-70"
     @click.self="close"
   >
     <div class="bg-white rounded-lg shadow-xl max-w-2xl w-full p-8 relative">
