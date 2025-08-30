@@ -275,7 +275,15 @@ function getPreviewUrl(file) {
           >
             {{ generalError }}
           </div>
-          <button type="button" @click="nextStep" class="btn">Avanti</button>
+          <div class="flex justify-end mt-6">
+            <button
+              type="button"
+              @click="nextStep"
+              class="px-6 py-2 bg-blue-500 text-white rounded-lg shadow hover:bg-blue-600 transition font-medium"
+            >
+              Avanti
+            </button>
+          </div>
         </div>
 
         <div v-if="currentStep === 2">
@@ -370,10 +378,22 @@ function getPreviewUrl(file) {
             >
               {{ generalError }}
             </div>
-            <button type="button" @click="prevStep" class="btn">
-              Indietro
-            </button>
-            <button type="button" @click="nextStep" class="btn">Avanti</button>
+            <div class="flex justify-between mt-6">
+              <button
+                type="button"
+                @click="prevStep"
+                class="px-6 py-2 bg-gray-500 text-white rounded-lg shadow hover:bg-gray-600 transition font-medium"
+              >
+                Indietro
+              </button>
+              <button
+                type="button"
+                @click="nextStep"
+                class="px-6 py-2 bg-blue-500 text-white rounded-lg shadow hover:bg-blue-600 transition font-medium"
+              >
+                Avanti
+              </button>
+            </div>
           </div>
         </div>
 
@@ -428,8 +448,22 @@ function getPreviewUrl(file) {
           >
             {{ generalError }}
           </div>
-          <button type="button" @click="prevStep" class="btn">Indietro</button>
-          <button type="button" @click="nextStep" class="btn">Avanti</button>
+          <div class="flex justify-between mt-6">
+            <button
+              type="button"
+              @click="prevStep"
+              class="px-6 py-2 bg-gray-500 text-white rounded-lg shadow hover:bg-gray-600 transition font-medium"
+            >
+              Indietro
+            </button>
+            <button
+              type="button"
+              @click="nextStep"
+              class="px-6 py-2 bg-blue-500 text-white rounded-lg shadow hover:bg-blue-600 transition font-medium"
+            >
+              Avanti
+            </button>
+          </div>
         </div>
 
         <div v-if="currentStep === 4" class="space-y-4">
@@ -488,14 +522,25 @@ function getPreviewUrl(file) {
             <button
               type="button"
               @click="resetForm"
-              class="px-6 py-2 bg-gray-200 text-gray-700 rounded-lg shadow hover:bg-gray-300 transition"
+              class="px-6 py-2 bg-red-500 text-white rounded-lg shadow hover:bg-red-600 transition font-medium"
             >
               Reset
             </button>
-            <button type="button" @click="prevStep" class="btn">
-              Indietro
-            </button>
-            <button type="submit" class="btn">Invia</button>
+            <div class="flex gap-3">
+              <button
+                type="button"
+                @click="prevStep"
+                class="px-6 py-2 bg-gray-500 text-white rounded-lg shadow hover:bg-gray-600 transition font-medium"
+              >
+                Indietro
+              </button>
+              <button
+                type="submit"
+                class="px-6 py-2 bg-green-500 text-white rounded-lg shadow hover:bg-green-600 transition font-medium"
+              >
+                Invia
+              </button>
+            </div>
           </div>
         </div>
       </form>
