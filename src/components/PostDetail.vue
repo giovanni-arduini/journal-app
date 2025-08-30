@@ -1,13 +1,50 @@
 <template>
+  <!-- Modale di conferma eliminazione -->
+  <BasicModal
+    v-if="showDeleteModal"
+    :open="showDeleteModal"
+    title="Conferma eliminazione"
+    :fields="[]"
+    submitLabel="Conferma"
+    @submit="confirmDelete"
+    @close="showDeleteModal = false"
+    class="fixed inset-0"
+  >
+    <template #default>
+      <div class="text-center py-4">
+        <p>Sei sicuro di voler eliminare questo post?</p>
+      </div>
+    </template>
+    <template #footer>
+      <button
+        type="button"
+        class="px-4 py-2 bg-red-500 text-white rounded mr-2"
+        @click="confirmDelete"
+      >
+        Elimina
+      </button>
+      <button
+        type="button"
+        class="px-4 py-2 bg-gray-300 rounded"
+        @click="showDeleteModal = false"
+      >
+        Annulla
+      </button>
+    </template>
+  </BasicModal>
+  <!-- Modale di modifica -->
   <EditPostForm
-    v-if="showEditPost"
+    v-else-if="showEditPost"
     :post="post"
     @close="showEditPost = false"
     @updated="handlePostUpdated"
+    class="fixed inset-0 z-50"
   />
+
+  <!-- Overlay e dettaglio post -->
   <div
     v-else
-    class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-70"
+    class="fixed inset-0 z-40 flex items-center justify-center bg-black bg-opacity-70"
     @click.self="close"
   >
     <div class="bg-white rounded-lg shadow-xl max-w-2xl w-full p-8 relative">
@@ -84,24 +121,24 @@
           {{ tag }}
         </span>
       </div>
-      <div>
-        <button @click="showEditPost = true">Modifica</button>
+      <div class="flex gap-4 mt-6 justify-end">
+        <button @click="showEditPost = true" class="btn bg-blue-500 text-white">
+          Modifica
+        </button>
+        <button @click="handleDelete" class="btn bg-red-500 text-white">
+          Elimina
+        </button>
       </div>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, watch } from "vue";
+import { ref } from "vue";
 import { getTagColor, usePosts } from "@/usePosts";
 import EditPostForm from "./EditPostForm.vue";
 
-const { updatePost } = usePosts();
-
-function handlePostUpdated(updatedPost) {
-  updatePost(updatedPost._id, updatedPost);
-  showEditPost.value = false;
-}
+const { updatePost, deletePost } = usePosts();
 
 const props = defineProps({
   post: { type: Object, required: true },
@@ -110,8 +147,24 @@ const props = defineProps({
 
 const emit = defineEmits(["close"]);
 const showEditPost = ref(false);
+const showDeleteModal = ref(false);
 
 function close() {
   emit("close");
+}
+
+function handleDelete() {
+  showDeleteModal.value = true;
+}
+
+function confirmDelete() {
+  deletePost(props.post._id);
+  showDeleteModal.value = false;
+  emit("close");
+}
+
+function handlePostUpdated(updatedPost) {
+  updatePost(updatedPost._id, updatedPost);
+  showEditPost.value = false;
 }
 </script>
