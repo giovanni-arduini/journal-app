@@ -54,7 +54,7 @@ function getStickerStyle() {
     @close="closeDetail"
   />
   <div
-    class="relative flex flex-col items-center w-full max-w-xs aspect-[3/4] mx-auto"
+    class="relative flex flex-col items-center w-full max-w-sm aspect-[3/4] mx-auto"
     :class="isFlipped ? 'z-40' : 'z-10'"
     @click="flipCard"
     style="perspective: 1200px; cursor: pointer"
@@ -112,11 +112,11 @@ function getStickerStyle() {
       >
         <!-- Front -->
         <div
-          class="absolute inset-0 flex flex-col items-center bg-white rounded-lg shadow-lg pb-6 pt-4 mx-auto"
+          class="absolute inset-0 flex flex-col bg-white rounded-lg shadow-lg mx-auto"
           style="backface-visibility: hidden"
         >
           <figure
-            class="w-full h-64 flex items-center justify-center overflow-hidden rounded-t-lg p-2"
+            class="flex-1 flex items-center justify-center overflow-hidden rounded-t-lg p-2 min-h-0"
           >
             <template v-if="props.post.media && props.post.media.length">
               <template
@@ -127,14 +127,14 @@ function getStickerStyle() {
                   v-if="mediaItem.type === 'image'"
                   :src="mediaItem.url"
                   alt="immagine"
-                  class="object-cover w-full h-full mb-2"
+                  class="object-cover w-full h-full"
                 />
                 <video
                   v-else-if="mediaItem.type === 'video'"
                   :src="mediaItem.url"
                   :poster="mediaItem.videoPreview"
                   controls
-                  class="object-cover w-full h-full mb-2"
+                  class="object-cover w-full h-full"
                 ></video>
               </template>
             </template>
@@ -146,11 +146,15 @@ function getStickerStyle() {
               </div>
             </template>
           </figure>
-          <div class="w-full px-4 pt-3 pb-2 bg-white rounded-b-lg text-center">
-            <h1 class="text-lg font-bold text-gray-800">
+          <div
+            class="flex-shrink-0 w-full px-2 sm:px-4 pt-2 sm:pt-3 pb-4 sm:pb-6 bg-white rounded-b-lg text-center"
+          >
+            <h1
+              class="text-sm sm:text-base md:text-lg font-bold text-gray-800 leading-tight"
+            >
               {{ props.post.name }}
             </h1>
-            <p class="text-sm text-gray-500">
+            <p class="text-xs sm:text-sm text-gray-500 hidden sm:block">
               {{ convertDate(props.post.date) }}
             </p>
           </div>
@@ -164,21 +168,20 @@ function getStickerStyle() {
 
         <!-- Back -->
         <div
-          class="absolute inset-0 flex flex-col items-center bg-white rounded-lg shadow-lg pb-6 pt-4 mx-auto rotate-y-180"
+          class="absolute inset-0 flex flex-col bg-white rounded-lg shadow-lg pb-4 pt-4 mx-auto rotate-y-180"
           style="backface-visibility: hidden; transform: rotateY(180deg)"
         >
-          <div
-            class="w-full h-64 flex flex-col items-center justify-center overflow-hidden rounded-t-lg p-2"
-          >
-            <div class="w-full px-4 pt-3 pb-2 text-center">
-              <h2 class="text-lg font-bold text-gray-800">
+          <!-- Contenuto principale -->
+          <div class="flex-1 flex flex-col items-center justify-center px-4">
+            <div class="w-full text-center mb-4">
+              <h2 class="text-lg font-bold text-gray-800 mb-2 line-clamp-3">
                 {{ props.post.description }}
               </h2>
-              <p class="text-sm text-gray-600">
+              <p class="text-sm text-gray-600 mb-4">
                 Mi sentivo {{ props.post.mood }}
               </p>
               <button
-                class="mt-4 px-4 py-2 bg-blue-500 text-white rounded shadow"
+                class="px-4 py-2 bg-blue-500 text-white rounded shadow hover:bg-blue-600 transition-colors"
                 @click.stop="showDetail"
               >
                 Vai al ricordo!
@@ -186,19 +189,26 @@ function getStickerStyle() {
             </div>
           </div>
 
-          <!-- TAGS: sticker style -->
+          <!-- TAGS: sticker style - area limitata -->
           <div
-            class="w-full px-4 pt-2 pb-2 text-center flex flex-wrap justify-center items-center"
+            class="w-full px-4 pb-2 flex flex-wrap justify-center items-center gap-1 max-h-20 overflow-hidden"
           >
             <div
-              v-for="tag in tags"
+              v-for="(tag, index) in tags.slice(0, 6)"
               :key="tag"
-              class="sticker-tag inline-block px-2 py-1 mr-2 mb-2 rounded text-xs font-semibold shadow"
+              class="sticker-tag inline-block px-1 py-0.5 rounded text-xs font-normal shadow"
               :style="`background-color: ${getTagColor(
                 tag
               )}; ${getStickerStyle()}`"
             >
               {{ tag }}
+            </div>
+            <div
+              v-if="tags.length > 6"
+              class="sticker-tag inline-block px-1 py-0.5 rounded text-xs font-normal shadow bg-gray-200 text-gray-600"
+              :style="getStickerStyle()"
+            >
+              +{{ tags.length - 6 }}
             </div>
           </div>
         </div>
@@ -209,9 +219,17 @@ function getStickerStyle() {
 
 <style scoped>
 .sticker-tag {
-  border: 2px solid #fff;
-  box-shadow: 1px 1px 1px rgba(0, 0, 0, 0.12);
+  border: 1px solid #fff;
+  box-shadow: 1px 1px 1px rgba(0, 0, 0, 0.1);
 }
+
+.line-clamp-3 {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
 .pin-move-enter-from,
 .pin-move-leave-to {
   opacity: 0;

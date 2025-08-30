@@ -26,12 +26,9 @@ watch(
       background-repeat: no-repeat;
     "
   >
-    <div
-      class="mb-10 flex justify-center text-center font-bold text-xl relative"
-      style="height: 100px"
-    >
+    <div class="mb-10 flex justify-center text-center relative">
       <h1
-        class="title bg-gray-200 bg-opacity-80 shadow-lg p-6 relative inline-block"
+        class="title bg-gray-200 bg-opacity-80 shadow-lg p-3 relative inline-block flex items-center justify-center"
       >
         <!-- Pinhead in alto a sinistra -->
         <div
@@ -41,22 +38,11 @@ watch(
         <div
           class="absolute -top-1 -right-1 w-6 h-6 bg-yellow-400 rounded-full border-2 border-gray-200 shadow-md"
         ></div>
-        Il mio viaggio
+        Estate 2025
       </h1>
     </div>
 
-    <div
-      :class="[
-        'grid gap-8 px-5 mb-20',
-        posts.processedPosts.value.length === 1
-          ? 'grid-cols-1'
-          : posts.processedPosts.value.length === 2
-          ? 'grid-cols-2'
-          : posts.processedPosts.value.length === 3
-          ? 'grid-cols-3'
-          : 'grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4',
-      ]"
-    >
+    <div class="grid grid-cols-2 xl:grid-cols-3 gap-8 px-5 mb-20">
       <PostCard
         v-for="post in posts.processedPosts.value"
         :key="post.id"
@@ -75,6 +61,7 @@ watch(
 <style scoped>
 .title {
   font-family: "Indie Flower", cursive;
-  font-size: 50px;
+  font-size: 35px;
+  line-height: 1;
 }
 </style>
