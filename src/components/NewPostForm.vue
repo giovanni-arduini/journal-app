@@ -1,5 +1,19 @@
 <script setup>
-import { ref, watch } from "vue";
+import { ref, watch, computed } from "vue";
+import MapView from "./MapView.vue";
+import { LMap, LTileLayer, LMarker, LPopup } from "@vue-leaflet/vue-leaflet";
+import "leaflet/dist/leaflet.css";
+import L from "leaflet";
+
+import markerIcon2x from "leaflet/dist/images/marker-icon-2x.png";
+import markerIcon from "leaflet/dist/images/marker-icon.png";
+import markerShadow from "leaflet/dist/images/marker-shadow.png";
+
+L.Icon.Default.mergeOptions({
+  iconRetinaUrl: markerIcon2x,
+  iconUrl: markerIcon,
+  shadowUrl: markerShadow,
+});
 
 // sezioni del form
 const currentStep = ref(1);
@@ -19,6 +33,26 @@ const negative_reflection = ref("");
 const physical_effort = ref(null);
 const economic_effort = ref(null);
 const actual_expense = ref(null);
+
+// Posizione di default per la mappa (Roma, Italia)
+const defaultLocation = { lat: 41.9028, lng: 12.4964 };
+
+// Computed per la posizione della mappa
+const mapCenter = computed(() => {
+  return location.value.geo
+    ? [location.value.geo.lat, location.value.geo.lng]
+    : [defaultLocation.lat, defaultLocation.lng];
+});
+
+// Computed per determinare se mostrare il marker
+const showMarker = computed(() => {
+  return location.value.geo !== null;
+});
+
+// Stato per l'autocompletamento degli indirizzi
+const addressSuggestions = ref([]);
+const showSuggestions = ref(false);
+const isLoadingSuggestions = ref(false);
 
 // errori
 const generalError = ref("");
@@ -68,6 +102,77 @@ function getGeoLocation() {
       alert("Impossibile ottenere la posizione.");
     }
   );
+}
+
+// Funzione per gestire il click sulla mappa
+function onMapClick(event) {
+  location.value.geo = {
+    lat: event.latlng.lat,
+    lng: event.latlng.lng,
+  };
+}
+
+async function searchAddresses(query) {
+  if (!query || query.length < 3) {
+    addressSuggestions.value = [];
+    showSuggestions.value = false;
+    return;
+  }
+
+  isLoadingSuggestions.value = true;
+  
+  try {
+    // Uso Nominatim (OpenStreetMap) per il geocoding gratuito
+    const response = await fetch(
+      `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=5&countrycodes=it&addressdetails=1`
+    );
+    const data = await response.json();
+    
+    addressSuggestions.value = data.map(item => ({
+      display_name: item.display_name,
+      lat: parseFloat(item.lat),
+      lng: parseFloat(item.lon),
+      name: item.name || item.display_name.split(',')[0]
+    }));
+    
+    showSuggestions.value = addressSuggestions.value.length > 0;
+  } catch (error) {
+    console.error('Errore nella ricerca indirizzi:', error);
+    addressSuggestions.value = [];
+    showSuggestions.value = false;
+  } finally {
+    isLoadingSuggestions.value = false;
+  }
+}
+
+// Funzione per selezionare un suggerimento
+function selectSuggestion(suggestion) {
+  location.value.manual = suggestion.name;
+  location.value.geo = {
+    lat: suggestion.lat,
+    lng: suggestion.lng
+  };
+  showSuggestions.value = false;
+  addressSuggestions.value = [];
+}
+
+// Funzione per nascondere i suggerimenti
+function hideSuggestions() {
+  setTimeout(() => {
+    showSuggestions.value = false;
+  }, 200); // Ritardo per permettere il click sui suggerimenti
+}
+
+// Debounce per la ricerca
+let searchTimeout;
+function onAddressInput(event) {
+  const query = event.target.value;
+  location.value.manual = query;
+  
+  clearTimeout(searchTimeout);
+  searchTimeout = setTimeout(() => {
+    searchAddresses(query);
+  }, 300);
 }
 
 function validateStep(step) {
@@ -401,11 +506,7 @@ function getPreviewUrl(file) {
           <!-- Località -->
           <fieldset class="border border-purple-200 rounded-lg p-2 mb-2">
             <legend class="px-2 text-purple-600 font-semibold">Località</legend>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-2 items-center">
-              <label class="block">
-                <span class="text-purple-700 font-medium">Manuale:</span>
-                <input v-model="location.manual" class="input-field" />
-              </label>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-2 items-start">
               <label class="block">
                 <span class="text-purple-700 font-medium"
                   >Geolocalizzazione:</span
@@ -424,8 +525,81 @@ function getPreviewUrl(file) {
                   Lat: {{ location.geo.lat }}, Lng: {{ location.geo.lng }}
                 </span>
               </label>
+              
+              <label class="block relative">
+                <span class="text-purple-700 font-medium">Manuale:</span>
+                <input 
+                  v-model="location.manual" 
+                  @input="onAddressInput"
+                  @focus="location.manual && searchAddresses(location.manual)"
+                  @blur="hideSuggestions"
+                  class="input-field" 
+                  placeholder="Inserisci un indirizzo..."
+                />
+                
+                <!-- Dropdown dei suggerimenti -->
+                <div 
+                  v-if="showSuggestions || isLoadingSuggestions" 
+                  class="absolute top-full left-0 right-0 bg-white border border-purple-200 rounded-lg shadow-lg mt-1 max-h-48 overflow-y-auto"
+                  style="z-index: 1000;"
+                >
+                  <!-- Loading indicator -->
+                  <div v-if="isLoadingSuggestions" class="p-3 text-center text-purple-600">
+                    <span class="animate-pulse">Cercando indirizzi...</span>
+                  </div>
+                  
+                  <!-- Lista suggerimenti -->
+                  <div v-else>
+                    <button
+                      v-for="suggestion in addressSuggestions"
+                      :key="suggestion.display_name"
+                      @click="selectSuggestion(suggestion)"
+                      class="w-full text-left p-3 hover:bg-purple-50 border-b border-purple-100 last:border-b-0 text-sm"
+                    >
+                      <div class="font-medium text-purple-700">{{ suggestion.name }}</div>
+                      <div class="text-xs text-purple-500 truncate">{{ suggestion.display_name }}</div>
+                    </button>
+                  </div>
+                </div>
+              </label>
             </div>
           </fieldset>
+
+          <!-- Mappa sempre visibile -->
+          <div class="mb-4">
+            <h4 class="text-purple-700 font-medium mb-2">
+              {{
+                showMarker
+                  ? "Posizione selezionata:"
+                  : "Mappa (clicca per selezionare una posizione):"
+              }}
+            </h4>
+            <div
+              class="w-full h-64 rounded-lg border border-purple-200 overflow-hidden"
+            >
+              <l-map
+                :zoom="showMarker ? 15 : 6"
+                :center="mapCenter"
+                style="height: 100%; width: 100%"
+                @click="onMapClick"
+              >
+                <l-tile-layer
+                  url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                />
+                <l-marker v-if="showMarker" :lat-lng="mapCenter">
+                  <l-popup>
+                    <strong>{{
+                      location.manual || "Posizione selezionata"
+                    }}</strong>
+                  </l-popup>
+                </l-marker>
+              </l-map>
+            </div>
+            <p class="text-xs text-purple-600 mt-1">
+              💡 Clicca sulla mappa per posizionare il pin o usa il pulsante
+              "Usa la mia posizione"
+            </p>
+          </div>
 
           <!-- Media -->
           <fieldset class="border border-pink-200 rounded-lg p-2 mb-2">
@@ -570,5 +744,10 @@ fieldset {
 }
 legend {
   font-size: 1.05rem;
+}
+
+/* Abbassa i controlli zoom di Leaflet sotto la tendina dei suggerimenti */
+:deep(.leaflet-control-zoom) {
+  z-index: 100 !important;
 }
 </style>
