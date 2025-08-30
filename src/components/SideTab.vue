@@ -3,6 +3,7 @@ import { ref, watch, computed, reactive } from "vue";
 import TagInput from "@/components/TagInput.vue";
 import { usePosts } from "@/usePosts";
 import NewPostForm from "./NewPostForm.vue";
+import MapView from "./MapView.vue";
 
 defineProps({
   folderList: Array, // oppure il tipo corretto
@@ -203,6 +204,8 @@ function updateRadius() {
         </button>
       </div>
     </form>
+
+    <!-- <MapView /> -->
 
     <div class="mt-10">
       <div class="mb-8">
