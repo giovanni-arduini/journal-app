@@ -1,7 +1,14 @@
 // filepath: /Users/Gio/dev-projects/journal-app/src/components/MapView.vue
 <template>
-  <div class="w-full h-[500px] rounded-xl shadow-lg overflow-hidden">
-    <l-map :zoom="6" :center="center" style="height: 100%; width: 100%">
+  <div
+    class="w-full h-[500px] rounded-xl shadow-lg overflow-hidden z-10 relative"
+  >
+    <l-map
+      :bounds="bounds"
+      :zoom="6"
+      :center="center"
+      style="height: 100%; width: 100%"
+    >
       <l-tile-layer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
       <l-marker
         v-for="post in postsWithGeo"
@@ -45,6 +52,26 @@ const postsWithGeo = computed(() =>
   )
 );
 
-// DA RIVEDERE! calcolo dinamico
-const center = [42.5, 12.5];
+const geoPoints = computed(() =>
+  processedPosts.value
+    .filter(
+      (p) =>
+        p.location &&
+        p.location.geo &&
+        typeof p.location.geo.lat === "number" &&
+        typeof p.location.geo.lng === "number"
+    )
+    .map((p) => [p.location.geo.lat, p.location.geo.lng])
+);
+
+const center = computed(() => {
+  if (!geoPoints.value.length) return [42.5, 12.5]; // fallback: Italia
+  const avgLat =
+    geoPoints.value.reduce((sum, pt) => sum + pt[0], 0) /
+    geoPoints.value.length;
+  const avgLng =
+    geoPoints.value.reduce((sum, pt) => sum + pt[1], 0) /
+    geoPoints.value.length;
+  return [avgLat, avgLng];
+});
 </script>
