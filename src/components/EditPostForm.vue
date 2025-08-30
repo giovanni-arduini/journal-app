@@ -13,7 +13,11 @@ const name = ref(props.post?.name || "");
 const description = ref(props.post?.description || "");
 const mood = ref(props.post?.mood || "");
 const tags = ref(props.post?.tags ? [...props.post.tags] : []);
-const date = ref(new Date().toISOString().slice(0, 10));
+const date = ref(
+  props.post?.date
+    ? new Date(props.post.date).toISOString().slice(0, 10)
+    : new Date().toISOString().slice(0, 10)
+);
 const positive_reflection = ref(props.post?.positive_reflection || "");
 const negative_reflection = ref(props.post?.negative_reflection || "");
 const physical_effort = ref(props.post?.physical_effort || null);
@@ -69,111 +73,213 @@ async function submitEdit() {
 }
 </script>
 
+<style scoped>
+.input-field {
+  width: 100%;
+  padding: 0.5rem;
+  border: 2px solid #e5e7eb;
+  border-radius: 0.375rem;
+  transition: border-color 0.15s ease-in-out;
+}
+
+.input-field:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+fieldset {
+  transition: all 0.2s ease-in-out;
+}
+
+fieldset:hover {
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.scale-110 {
+  transform: scale(1.1);
+}
+</style>
+
 <template>
   <div
     class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-70"
     @click.self="emit('close')"
   >
     <div
-      class="bg-white rounded-xl shadow-2xl max-w-xl w-full p-4 relative overflow-y-auto"
-      style="max-width: 900px; max-height: 90vh"
+      class="bg-white rounded-xl shadow-2xl max-w-4xl w-full p-6 relative overflow-y-auto"
+      style="max-height: 90vh"
     >
       <button
-        class="absolute top-2 right-2 text-gray-500 hover:text-red-500 text-2xl font-bold"
+        class="absolute top-4 right-4 text-gray-500 hover:text-red-500 text-2xl font-bold"
         @click="emit('close')"
       >
         &times;
       </button>
-      <form @submit.prevent="submitEdit" class="space-y-8">
+
+      <h2 class="text-2xl font-bold text-gray-800 mb-6">Modifica Post</h2>
+
+      <form @submit.prevent="submitEdit" class="space-y-6">
         <div
           v-if="generalError"
           class="mb-4 text-red-600 font-semibold text-center"
         >
           {{ generalError }}
         </div>
-        <!-- Campi principali, come nel form di creazione -->
-        <label>
-          Titolo: <span class="text-red-500">*</span>
-          <input
-            v-model="name"
-            :class="['input-field', errors.name ? 'border-red-500' : '']"
-          />
-        </label>
-        <label>
-          Mood: <span class="text-red-500">*</span>
-          <input
-            v-model="mood"
-            :class="['input-field', errors.mood ? 'border-red-500' : '']"
-          />
-        </label>
-        <label>
-          Descrizione: <span class="text-red-500">*</span>
-          <textarea
-            v-model="description"
-            :class="['input-field', errors.description ? 'border-red-500' : '']"
-          />
-        </label>
-        <label>
-          Tag:
-          <input v-model="tags" class="input-field" />
-        </label>
-        <label>
-          Riflessione positiva:
-          <textarea v-model="positive_reflection" class="input-field" />
-        </label>
-        <label>
-          Data: <span class="text-red-500">*</span>
-          <input type="date" v-model="date" class="input-field" />
-        </label>
-        <label>
-          Riflessione negativa:
-          <textarea v-model="negative_reflection" class="input-field" />
-        </label>
-        <label>
-          Sforzo fisico: <span class="text-red-500">*</span>
-          <input
-            type="number"
-            v-model="physical_effort"
-            :class="[
-              'input-field',
-              errors.physical_effort ? 'border-red-500' : '',
-            ]"
-            min="1"
-            max="5"
-          />
-        </label>
-        <label>
-          Sforzo economico: <span class="text-red-500">*</span>
-          <input
-            type="number"
-            v-model="economic_effort"
-            :class="[
-              'input-field',
-              errors.economic_effort ? 'border-red-500' : '',
-            ]"
-            min="1"
-            max="5"
-          />
-        </label>
-        <label>
-          Spesa effettiva: <span class="text-red-500">*</span>
-          <input
-            type="number"
-            v-model="actual_expense"
-            :class="[
-              'input-field',
-              errors.actual_expense ? 'border-red-500' : '',
-            ]"
-          />
-        </label>
-        <label>
-          Località manuale:
-          <input v-model="location.manual" class="input-field" />
-        </label>
-        <div class="flex justify-end mt-4">
+
+        <!-- Info principali -->
+        <fieldset class="border border-blue-200 rounded-lg p-4 mb-4">
+          <legend class="px-2 text-blue-600 font-semibold">
+            Info principali
+          </legend>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <label class="block">
+              <span class="text-blue-700 font-medium">
+                Titolo: <span class="text-red-500">*</span>
+              </span>
+              <input
+                v-model="name"
+                :class="['input-field', errors.name ? 'border-red-500' : '']"
+              />
+            </label>
+            <label class="block">
+              <span class="text-blue-700 font-medium">
+                Mood: <span class="text-red-500">*</span>
+              </span>
+              <input
+                v-model="mood"
+                :class="['input-field', errors.mood ? 'border-red-500' : '']"
+              />
+            </label>
+            <label class="block md:col-span-2">
+              <span class="text-blue-700 font-medium">
+                Descrizione: <span class="text-red-500">*</span>
+              </span>
+              <textarea
+                v-model="description"
+                :class="[
+                  'input-field',
+                  errors.description ? 'border-red-500' : '',
+                ]"
+                rows="3"
+              />
+            </label>
+            <label class="block md:col-span-2">
+              <span class="text-blue-700 font-medium">Tag:</span>
+              <input v-model="tags" class="input-field" />
+            </label>
+            <label class="block">
+              <span class="text-blue-700 font-medium">
+                Data: <span class="text-red-500">*</span>
+              </span>
+              <input type="date" v-model="date" class="input-field" />
+            </label>
+          </div>
+        </fieldset>
+
+        <!-- Riflessioni -->
+        <fieldset class="border border-green-200 rounded-lg p-4 mb-4">
+          <legend class="px-2 text-green-600 font-semibold">Riflessioni</legend>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <label class="block">
+              <span class="text-green-700 font-medium">Positiva:</span>
+              <textarea
+                v-model="positive_reflection"
+                class="input-field"
+                rows="3"
+              />
+            </label>
+            <label class="block">
+              <span class="text-green-700 font-medium">Negativa:</span>
+              <textarea
+                v-model="negative_reflection"
+                class="input-field"
+                rows="3"
+              />
+            </label>
+          </div>
+        </fieldset>
+
+        <!-- Sforzi & Spese -->
+        <fieldset class="border border-yellow-200 rounded-lg p-4 mb-4">
+          <legend class="px-2 text-yellow-600 font-semibold">
+            Sforzi & Spese
+          </legend>
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <!-- Sforzo fisico con emoji -->
+            <label class="block">
+              <span class="text-yellow-700 font-medium">
+                Fisico: <span class="text-red-500">*</span>
+              </span>
+              <div class="flex space-x-1 mt-1">
+                <span
+                  v-for="n in 5"
+                  :key="'fisico-' + n"
+                  @click="physical_effort = n"
+                  :class="[
+                    'cursor-pointer text-2xl transition',
+                    physical_effort >= n
+                      ? 'opacity-100 scale-110'
+                      : 'opacity-40',
+                    errors.physical_effort ? 'border-b-2 border-red-500' : '',
+                  ]"
+                  >💪</span
+                >
+              </div>
+            </label>
+            <!-- Sforzo economico con emoji -->
+            <label class="block">
+              <span class="text-yellow-700 font-medium">
+                Economico: <span class="text-red-500">*</span>
+              </span>
+              <div class="flex space-x-1 mt-1">
+                <span
+                  v-for="n in 5"
+                  :key="'economico-' + n"
+                  @click="economic_effort = n"
+                  :class="[
+                    'cursor-pointer text-2xl transition',
+                    economic_effort >= n
+                      ? 'opacity-100 scale-110'
+                      : 'opacity-40',
+                    errors.economic_effort ? 'border-b-2 border-red-500' : '',
+                  ]"
+                  >💸</span
+                >
+              </div>
+            </label>
+            <!-- Spesa effettiva -->
+            <label class="block">
+              <span class="text-yellow-700 font-medium">
+                Spesa effettiva: <span class="text-red-500">*</span>
+              </span>
+              <input
+                type="number"
+                v-model="actual_expense"
+                :class="[
+                  'input-field',
+                  errors.actual_expense ? 'border-red-500' : '',
+                ]"
+              />
+            </label>
+          </div>
+        </fieldset>
+
+        <!-- Località -->
+        <fieldset class="border border-purple-200 rounded-lg p-4 mb-4">
+          <legend class="px-2 text-purple-600 font-semibold">Località</legend>
+          <div class="grid grid-cols-1 gap-4">
+            <label class="block">
+              <span class="text-purple-700 font-medium">Località manuale:</span>
+              <input v-model="location.manual" class="input-field" />
+            </label>
+          </div>
+        </fieldset>
+
+        <div class="flex justify-end mt-6">
           <button
             type="submit"
-            class="px-6 py-2 bg-blue-500 text-white rounded-lg shadow hover:bg-blue-600 transition"
+            class="px-6 py-3 bg-blue-500 text-white rounded-lg shadow-lg hover:bg-blue-600 transition-colors font-semibold"
           >
             Salva modifiche
           </button>
