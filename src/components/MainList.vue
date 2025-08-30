@@ -16,11 +16,38 @@ watch(
 </script>
 
 <template>
-  <div class="py-8 px-10">
-    <h1 class="text-2xl font-bold text-center mb-8">Il mio viaggio</h1>
+  <div
+    class="py-1 px-10 min-h-screen w-full"
+    style="
+      background-image: url('/images/board.png');
+      background-size: 100% 100%;
+
+      background-position: center;
+      background-repeat: no-repeat;
+    "
+  >
+    <div
+      class="mb-10 flex justify-center text-center font-bold text-xl relative"
+      style="height: 100px"
+    >
+      <h1
+        class="title bg-gray-200 bg-opacity-80 shadow-lg p-6 relative inline-block"
+      >
+        <!-- Pinhead in alto a sinistra -->
+        <div
+          class="absolute -top-1 -left-1 w-6 h-6 bg-red-400 rounded-full border-2 border-gray-200 shadow-md"
+        ></div>
+        <!-- Pinhead in alto a destra -->
+        <div
+          class="absolute -top-1 -right-1 w-6 h-6 bg-yellow-400 rounded-full border-2 border-gray-200 shadow-md"
+        ></div>
+        Il mio viaggio
+      </h1>
+    </div>
+
     <div
       :class="[
-        'grid gap-8',
+        'grid gap-8 px-5 mb-20',
         posts.processedPosts.value.length === 1
           ? 'grid-cols-1'
           : posts.processedPosts.value.length === 2
@@ -45,4 +72,9 @@ watch(
   </div>
 </template>
 
-<style scoped></style>
+<style scoped>
+.title {
+  font-family: "Indie Flower", cursive;
+  font-size: 50px;
+}
+</style>
