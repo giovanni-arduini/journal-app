@@ -10,6 +10,7 @@ import PostDetail from "./components/PostDetail.vue";
 import NewPostForm from "./components/NewPostForm.vue";
 import EditPostForm from "./components/EditPostForm.vue";
 import MapView from "./components/MapView.vue";
+import Dashboard from "./components/Dashboard.vue";
 
 const app = createApp(App);
 
@@ -22,5 +23,6 @@ app.component("PostDetail", PostDetail);
 app.component("NewPostForm", NewPostForm);
 app.component("EditPostForm", EditPostForm);
 app.component("MapView", MapView);
+app.component("Dashboard", Dashboard);
 
 app.mount("#app");
