@@ -49,7 +49,6 @@ const showMarker = computed(() => {
   return location.value.geo !== null;
 });
 
-// Stato per l'autocompletamento degli indirizzi
 const addressSuggestions = ref([]);
 const showSuggestions = ref(false);
 const isLoadingSuggestions = ref(false);
@@ -120,24 +119,26 @@ async function searchAddresses(query) {
   }
 
   isLoadingSuggestions.value = true;
-  
+
   try {
     // Uso Nominatim (OpenStreetMap) per il geocoding gratuito
     const response = await fetch(
-      `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=5&countrycodes=it&addressdetails=1`
+      `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(
+        query
+      )}&limit=5&countrycodes=it&addressdetails=1`
     );
     const data = await response.json();
-    
-    addressSuggestions.value = data.map(item => ({
+
+    addressSuggestions.value = data.map((item) => ({
       display_name: item.display_name,
       lat: parseFloat(item.lat),
       lng: parseFloat(item.lon),
-      name: item.name || item.display_name.split(',')[0]
+      name: item.name || item.display_name.split(",")[0],
     }));
-    
+
     showSuggestions.value = addressSuggestions.value.length > 0;
   } catch (error) {
-    console.error('Errore nella ricerca indirizzi:', error);
+    console.error("Errore nella ricerca indirizzi:", error);
     addressSuggestions.value = [];
     showSuggestions.value = false;
   } finally {
@@ -150,7 +151,7 @@ function selectSuggestion(suggestion) {
   location.value.manual = suggestion.name;
   location.value.geo = {
     lat: suggestion.lat,
-    lng: suggestion.lng
+    lng: suggestion.lng,
   };
   showSuggestions.value = false;
   addressSuggestions.value = [];
@@ -168,7 +169,7 @@ let searchTimeout;
 function onAddressInput(event) {
   const query = event.target.value;
   location.value.manual = query;
-  
+
   clearTimeout(searchTimeout);
   searchTimeout = setTimeout(() => {
     searchAddresses(query);
@@ -231,9 +232,13 @@ function resetForm() {
 const submitPost = async () => {
   uploading.value = true;
 
+  const API_URL =
+    import.meta.env.VITE_API_URL ||
+    `http://localhost:${import.meta.env.VITE_PORT || 3000}`;
+
   // 1. Richiedi signed URL
   const res = await fetch(
-    `http://localhost:3000/api/posts/signed-url?filename=${file.value.name}&contentType=${file.value.type}`
+    `${API_URL}/api/posts/signed-url?filename=${file.value.name}&contentType=${file.value.type}`
   );
   const { uploadUrl, publicUrl } = await res.json();
 
@@ -267,7 +272,7 @@ const submitPost = async () => {
   };
 
   // 4. Invia il post al backend
-  await fetch("http://localhost:3000/api/posts", {
+  await fetch(`${API_URL}/api/posts`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(postData),
@@ -525,29 +530,32 @@ function getPreviewUrl(file) {
                   Lat: {{ location.geo.lat }}, Lng: {{ location.geo.lng }}
                 </span>
               </label>
-              
+
               <label class="block relative">
                 <span class="text-purple-700 font-medium">Manuale:</span>
-                <input 
-                  v-model="location.manual" 
+                <input
+                  v-model="location.manual"
                   @input="onAddressInput"
                   @focus="location.manual && searchAddresses(location.manual)"
                   @blur="hideSuggestions"
-                  class="input-field" 
+                  class="input-field"
                   placeholder="Inserisci un indirizzo..."
                 />
-                
+
                 <!-- Dropdown dei suggerimenti -->
-                <div 
-                  v-if="showSuggestions || isLoadingSuggestions" 
+                <div
+                  v-if="showSuggestions || isLoadingSuggestions"
                   class="absolute top-full left-0 right-0 bg-white border border-purple-200 rounded-lg shadow-lg mt-1 max-h-48 overflow-y-auto"
-                  style="z-index: 1000;"
+                  style="z-index: 1000"
                 >
                   <!-- Loading indicator -->
-                  <div v-if="isLoadingSuggestions" class="p-3 text-center text-purple-600">
+                  <div
+                    v-if="isLoadingSuggestions"
+                    class="p-3 text-center text-purple-600"
+                  >
                     <span class="animate-pulse">Cercando indirizzi...</span>
                   </div>
-                  
+
                   <!-- Lista suggerimenti -->
                   <div v-else>
                     <button
@@ -556,8 +564,12 @@ function getPreviewUrl(file) {
                       @click="selectSuggestion(suggestion)"
                       class="w-full text-left p-3 hover:bg-purple-50 border-b border-purple-100 last:border-b-0 text-sm"
                     >
-                      <div class="font-medium text-purple-700">{{ suggestion.name }}</div>
-                      <div class="text-xs text-purple-500 truncate">{{ suggestion.display_name }}</div>
+                      <div class="font-medium text-purple-700">
+                        {{ suggestion.name }}
+                      </div>
+                      <div class="text-xs text-purple-500 truncate">
+                        {{ suggestion.display_name }}
+                      </div>
                     </button>
                   </div>
                 </div>

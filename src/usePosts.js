@@ -1,8 +1,9 @@
 import { reactive, computed, onMounted } from "vue";
 import axios from "axios";
 
-const PORT = import.meta.env.VITE_PORT;
-const API_URL = `http://localhost:${PORT}/api`;
+const API_URL =
+  import.meta.env.VITE_API_URL ||
+  `http://localhost:${import.meta.env.VITE_PORT || 3000}/api`;
 
 export function getTagColor(tag) {
   let hash = 0;
