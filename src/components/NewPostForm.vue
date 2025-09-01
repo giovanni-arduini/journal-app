@@ -4,6 +4,7 @@ import MapView from "./MapView.vue";
 import { LMap, LTileLayer, LMarker, LPopup } from "@vue-leaflet/vue-leaflet";
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
+import { usePosts } from "@/usePosts";
 
 import markerIcon2x from "leaflet/dist/images/marker-icon-2x.png";
 import markerIcon from "leaflet/dist/images/marker-icon.png";
@@ -14,6 +15,8 @@ L.Icon.Default.mergeOptions({
   iconUrl: markerIcon,
   shadowUrl: markerShadow,
 });
+
+const { addNewPost } = usePosts();
 
 // sezioni del form
 const currentStep = ref(1);
@@ -161,7 +164,7 @@ function selectSuggestion(suggestion) {
 function hideSuggestions() {
   setTimeout(() => {
     showSuggestions.value = false;
-  }, 200); // Ritardo per permettere il click sui suggerimenti
+  }, 200);
 }
 
 // Debounce per la ricerca
@@ -225,10 +228,6 @@ function resetForm() {
   generalError.value = "";
 }
 
-// watch([name, mood, description, actual_expense, file], () => {
-//   validateForm();
-// });
-
 const submitPost = async () => {
   uploading.value = true;
 
@@ -236,20 +235,19 @@ const submitPost = async () => {
     import.meta.env.VITE_API_URL ||
     `http://localhost:${import.meta.env.VITE_PORT || 3000}`;
 
-  // 1. Richiedi signed URL
+  // richiesta signed URL
   const res = await fetch(
     `${API_URL}/api/posts/signed-url?filename=${file.value.name}&contentType=${file.value.type}`
   );
   const { uploadUrl, publicUrl } = await res.json();
 
-  // 2. Carica il file su GCS
+  // caricamento file su GCS
   await fetch(uploadUrl, {
     method: "PUT",
     headers: { "Content-Type": file.value.type },
     body: file.value,
   });
 
-  // 3. Prepara i dati del post
   const mediaType = file.value.type.startsWith("image") ? "image" : "video";
   const postData = {
     name: name.value,
@@ -271,19 +269,13 @@ const submitPost = async () => {
     ],
   };
 
-  // 4. Invia il post al backend
-  await fetch(`${API_URL}/api/posts`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(postData),
-  });
+  // invio al beckend
+  await addNewPost(postData);
 
   uploading.value = false;
-  alert("Post inviato!");
-  name.value = "";
-  description.value = "";
-  file.value = null;
-  close(); // <-- chiude il modal
+  // alert("Post inviato!");
+  resetForm();
+  close();
 };
 
 function getPreviewUrl(file) {
@@ -311,7 +303,6 @@ function getPreviewUrl(file) {
         &times;
       </button>
       <form @submit.prevent="submitPost" class="space-y-8">
-        <!-- Sezione 1 -->
         <div v-if="currentStep === 1">
           <div class="space-y-4">
             <!-- Info principali -->
@@ -466,7 +457,7 @@ function getPreviewUrl(file) {
                     >
                   </div>
                 </label>
-                <!-- Spesa effettiva rimane input numerico -->
+                <!-- Spesa effettiva -->
                 <label class="block">
                   <span class="text-yellow-700 font-medium">
                     Spesa effettiva: <span class="text-red-500">*</span>
@@ -577,7 +568,7 @@ function getPreviewUrl(file) {
             </div>
           </fieldset>
 
-          <!-- Mappa sempre visibile -->
+          <!-- Mappa -->
           <div class="mb-4">
             <h4 class="text-purple-700 font-medium mb-2">
               {{
@@ -709,6 +700,7 @@ function getPreviewUrl(file) {
               type="button"
               @click="resetForm"
               class="px-6 py-2 bg-red-500 text-white rounded-lg shadow hover:bg-red-600 transition font-medium"
+              :disabled="uploading"
             >
               Reset
             </button>
@@ -720,11 +712,42 @@ function getPreviewUrl(file) {
               >
                 Indietro
               </button>
+
+              <!-- Caricamento -->
+              <div
+                v-if="uploading"
+                class="flex justify-center items-center my-6"
+              >
+                <svg
+                  class="animate-spin h-8 w-8 text-blue-500"
+                  viewBox="0 0 24 24"
+                >
+                  <circle
+                    class="opacity-25"
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    stroke="currentColor"
+                    stroke-width="4"
+                    fill="none"
+                  />
+                  <path
+                    class="opacity-75"
+                    fill="currentColor"
+                    d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
+                  />
+                </svg>
+                <span class="ml-3 text-blue-600 font-semibold"
+                  >Caricamento in corso...</span
+                >
+              </div>
+
               <button
                 type="submit"
                 class="px-6 py-2 bg-green-500 text-white rounded-lg shadow hover:bg-green-600 transition font-medium"
+                :disabled="uploading"
               >
-                Invia
+                {{ uploading ? "Caricamento..." : "Invia" }}
               </button>
             </div>
           </div>
@@ -758,7 +781,6 @@ legend {
   font-size: 1.05rem;
 }
 
-/* Abbassa i controlli zoom di Leaflet sotto la tendina dei suggerimenti */
 :deep(.leaflet-control-zoom) {
   z-index: 100 !important;
 }
