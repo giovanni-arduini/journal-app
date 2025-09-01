@@ -237,7 +237,7 @@ const submitPost = async () => {
 
   // richiesta signed URL
   const res = await fetch(
-    `${API_URL}/api/posts/signed-url?filename=${file.value.name}&contentType=${file.value.type}`
+    `${API_URL}/api/signed-url?filename=${file.value.name}&contentType=${file.value.type}`
   );
   const { uploadUrl, publicUrl } = await res.json();
 
