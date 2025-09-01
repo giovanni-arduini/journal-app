@@ -194,7 +194,7 @@ function getStickerStyle() {
             class="w-full px-4 pb-2 flex flex-wrap justify-center items-center gap-1 max-h-20 overflow-hidden"
           >
             <div
-              v-for="(tag, index) in tags.slice(0, 6)"
+              v-for="tag in tags.slice(0, 6)"
               :key="tag"
               class="sticker-tag inline-block px-1 py-0.5 rounded text-xs font-normal shadow"
               :style="`background-color: ${getTagColor(

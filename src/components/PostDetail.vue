@@ -58,31 +58,68 @@
       </button>
 
       <!-- Sezione sinistra - Immagine -->
-      <div class="w-3/5 bg-gray-100 flex items-center justify-center">
-        <template v-if="post.media && post.media.length">
-          <template v-for="mediaItem in post.media" :key="mediaItem._id">
-            <div class="w-full h-full flex justify-center items-center p-4">
-              <img
-                v-if="mediaItem.type === 'image'"
-                :src="mediaItem.url"
-                alt="Foto"
-                class="max-w-full max-h-full object-contain rounded-lg"
-              />
-              <video
-                v-else-if="mediaItem.type === 'video'"
-                :src="mediaItem.url"
-                :poster="mediaItem.videoPreview"
-                controls
-                class="max-w-full max-h-full object-contain rounded-lg"
-              ></video>
-            </div>
-          </template>
-        </template>
-        <template v-else>
-          <div class="flex items-center justify-center text-gray-400 text-lg">
-            Nessun media disponibile
+      <div class="w-3/5 bg-gray-100 h-full flex flex-cols justify-center">
+        <div class="grid grid-rows-4 gap-4 p-4">
+          <!-- Foto: occupa 3/4 -->
+          <div class="row-span-3 flex items-center justify-center">
+            <template v-if="post.media && post.media.length">
+              <template v-for="mediaItem in post.media" :key="mediaItem._id">
+                <img
+                  v-if="mediaItem.type === 'image'"
+                  :src="mediaItem.url"
+                  alt="Foto"
+                  class="max-w-full max-h-full object-contain rounded-lg"
+                />
+                <video
+                  v-else-if="mediaItem.type === 'video'"
+                  :src="mediaItem.url"
+                  :poster="mediaItem.videoPreview"
+                  controls
+                  class="max-w-full max-h-full object-contain rounded-lg"
+                ></video>
+              </template>
+            </template>
+            <template v-else>
+              <div
+                class="flex items-center justify-center text-gray-400 text-lg h-full w-full"
+              >
+                Nessun media disponibile
+              </div>
+            </template>
           </div>
-        </template>
+          <!-- Mappa: occupa 1/4 -->
+          <div class="row-span-1 h-full rounded-lg overflow-hidden shadow">
+            <LMap
+              v-if="post.location && post.location.geo"
+              :zoom="12"
+              :center="[post.location.geo.lat, post.location.geo.lng]"
+              style="height: 100%; width: 100%"
+              :scrollWheelZoom="false"
+              :doubleClickZoom="false"
+              :touchZoom="false"
+              :dragging="false"
+            >
+              <LTileLayer
+                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+              />
+              <LMarker
+                :lat-lng="[post.location.geo.lat, post.location.geo.lng]"
+              >
+                <LPopup>
+                  <strong>{{ post.name }}</strong
+                  ><br />
+                  {{ post.location.manual }}
+                </LPopup>
+              </LMarker>
+            </LMap>
+            <div
+              v-else
+              class="flex items-center justify-center h-full text-gray-400"
+            >
+              Nessuna posizione geografica
+            </div>
+          </div>
+        </div>
       </div>
 
       <!-- Sezione destra - Dettagli -->
@@ -156,6 +193,8 @@
 import { ref, onMounted, onUnmounted } from "vue";
 import { getTagColor, usePosts } from "@/usePosts";
 import EditPostForm from "./EditPostForm.vue";
+import { LMap, LTileLayer, LMarker, LPopup } from "@vue-leaflet/vue-leaflet";
+import "leaflet/dist/leaflet.css";
 
 const { updatePost, deletePost } = usePosts();
 

@@ -3,12 +3,7 @@
   <div
     class="w-full h-[500px] rounded-xl shadow-lg overflow-hidden z-10 relative"
   >
-    <l-map
-      :bounds="bounds"
-      :zoom="6"
-      :center="center"
-      style="height: 100%; width: 100%"
-    >
+    <l-map :zoom="6" :center="center" style="height: 100%; width: 100%">
       <l-tile-layer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
       <l-marker
         v-for="post in postsWithGeo"

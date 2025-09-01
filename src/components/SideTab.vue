@@ -71,66 +71,6 @@ function updateRadius() {
     });
   }
 }
-
-// const showDeleteFolderModal = ref(false);
-// const folderToDelete = ref(null); // 👈 id cartella selezionata
-
-// function handleDeleteRequest(id) {
-//   folderToDelete.value = id; // salvo id da cancellare
-//   showDeleteFolderModal.value = true; // apro il modale
-// }
-
-// function confirmDelete() {
-//   if (folderToDelete.value !== null) {
-//     deleteFolder(folderToDelete.value); // cancello solo alla conferma
-//     folderToDelete.value = null; // reset
-//     showDeleteFolderModal.value = false; // chiudo il modale
-//     loadFolders();
-//   }
-// }
-
-// function cancelDelete() {
-//   folderToDelete.value = null; // reset
-//   showDeleteFolderModal.value = false; // chiudo senza cancellare
-// }
-
-// function toggleShowDeleteFolderModal() {
-//   showDeleteFolderModal.value = !showDeleteFolderModal.value;
-// }
-
-// function handleDeleteFolder(id) {
-//   toggleShowDeleteFolderModal();
-
-//   deleteFolder(id);
-// }
-
-// function getToday() {
-//   return new Date().toISOString().split("T")[0];
-// }
-
-// function handleAddFolder(data) {
-//   if (data.name.trim() === "") {
-//     alert("Inserire un nome ");
-//   }
-//   try {
-//     addNewFolder({
-//       name: data.name,
-//       date: new Date(data.date),
-//       category: data.category,
-//     });
-//     loadFolders();
-//   } catch (err) {
-//     console.error(err);
-//   }
-// }
-
-// function toggleNewFolderModal() {
-//   showFolderModal.value = !showFolderModal.value;
-// }
-
-// function closeModal() {
-//   showFolderModal.value = false;
-// }
 </script>
 
 <template>
@@ -209,13 +149,18 @@ function updateRadius() {
 
     <div class="mt-10">
       <div class="mb-8">
-        <label class="block mb-1 font-semibold">Ordina per</label>
+        <label class="block mb-1 font-semibold">Ordina</label>
         <select class="w-full p-2 rounded border" v-model="state.sortBy">
-          <option value="date">Data</option>
-          <option value="distance" :disabled="!state.currentLocation">
-            Distanza da punto
+          <option value="date-asc">Dal meno recente</option>
+          <option value="date-desc">Dal più recente</option>
+          <option value="distance-asc" :disabled="!state.currentLocation">
+            Dal più vicino
           </option>
-          <option value="expense">Spesa economica</option>
+          <option value="distance-desc" :disabled="!state.currentLocation">
+            Dal più distante
+          </option>
+          <option value="expense-asc">Dal più economico</option>
+          <option value="expense-desc">Dal più costoso</option>
         </select>
       </div>
     </div>

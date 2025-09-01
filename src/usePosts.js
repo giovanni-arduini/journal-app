@@ -25,7 +25,7 @@ const state = reactive({
   currentLocation: null,
   distanceFilter: null,
   tagsFilter: [],
-  sortBy: "date",
+  sortBy: "date-desc",
 });
 
 // Calcolo distanze
@@ -87,22 +87,55 @@ const processedPosts = computed(() => {
   }
 
   // Sorting
-  if (state.sortBy === "distance" && hasValidDistance) {
-    posts.sort((a, b) => {
-      const geoA = a.location?.geo;
-      const geoB = b.location?.geo;
-      const distA = geoA
-        ? getDistance(df.lat, df.lng, geoA.lat, geoA.lng)
-        : Infinity;
-      const distB = geoB
-        ? getDistance(df.lat, df.lng, geoB.lat, geoB.lng)
-        : Infinity;
-      return distA - distB;
-    });
-  } else if (state.sortBy === "date") {
-    posts.sort((a, b) => new Date(b.date) - new Date(a.date));
-  } else if (state.sortBy === "expense") {
-    posts.sort((a, b) => b.actual_expense - a.actual_expense);
+  switch (state.sortBy) {
+    case "date-asc":
+      posts.sort((a, b) => new Date(a.date) - new Date(b.date));
+      break;
+    case "date-desc":
+      posts.sort((a, b) => new Date(b.date) - new Date(a.date));
+      break;
+    case "expense-asc":
+      posts.sort((a, b) => (a.actual_expense || 0) - (b.actual_expense || 0));
+      break;
+    case "expense-desc":
+      posts.sort((a, b) => (b.actual_expense || 0) - (a.actual_expense || 0));
+      break;
+    case "distance-asc": {
+      const loc = state.currentLocation || state.distanceFilter;
+      posts.sort((a, b) => {
+        const geoA = a.location?.geo;
+        const geoB = b.location?.geo;
+        const distA =
+          geoA && loc
+            ? getDistance(loc.lat, loc.lng, geoA.lat, geoA.lng)
+            : Infinity;
+        const distB =
+          geoB && loc
+            ? getDistance(loc.lat, loc.lng, geoB.lat, geoB.lng)
+            : Infinity;
+        return distA - distB;
+      });
+      break;
+    }
+    case "distance-desc": {
+      const loc = state.currentLocation || state.distanceFilter;
+      posts.sort((a, b) => {
+        const geoA = a.location?.geo;
+        const geoB = b.location?.geo;
+        const distA =
+          geoA && loc
+            ? getDistance(loc.lat, loc.lng, geoA.lat, geoA.lng)
+            : -Infinity;
+        const distB =
+          geoB && loc
+            ? getDistance(loc.lat, loc.lng, geoB.lat, geoB.lng)
+            : -Infinity;
+        return distB - distA;
+      });
+      break;
+    }
+    default:
+      posts.sort((a, b) => new Date(b.date) - new Date(a.date));
   }
 
   return posts;
@@ -151,7 +184,7 @@ export function usePosts() {
 
   async function addNewPost(newPost) {
     try {
-      const res = await axios.post(API_URL + "/posts", newPost);
+      await axios.post(API_URL + "/posts", newPost);
       await loadPosts();
     } catch (err) {
       console.error("Errore creazione post:", err);
